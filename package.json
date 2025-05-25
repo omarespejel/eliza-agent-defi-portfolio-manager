@@ -2,25 +2,37 @@
   "name": "defi-portfolio-agent",
   "version": "1.0.0",
   "type": "module",
+  "description": "AI-powered DeFi portfolio management agent built with ElizaOS",
+  "main": "dist/index.js",
+  "module": "src/index.ts",
+  "types": "dist/index.d.ts",
   "scripts": {
     "dev": "bun --watch src/index.ts",
-    "build": "bun build src/index.ts --outdir ./dist",
+    "build": "bun build src/index.ts --outdir ./dist --target node",
     "start": "bun src/index.ts",
     "test": "bun test",
-    "format": "bun fmt",
-    "clean": "rm -rf dist node_modules"
+    "test:watch": "bun test --watch",
+    "lint": "bun run prettier --check .",
+    "format": "bun run prettier --write .",
+    "clean": "rm -rf dist node_modules",
+    "setup": "bun scripts/setup.ts"
   },
   "dependencies": {
     "@elizaos/core": "latest",
     "@elizaos/plugin-evm": "latest",
+    "@elizaos/plugin-sql": "latest",
     "@elizaos/client-discord": "latest",
+    "@elizaos/client-telegram": "latest",
     "ethers": "^6.0.0",
-    "viem": "^2.0.0"
+    "viem": "^2.0.0",
+    "uuid": "^9.0.0"
   },
   "devDependencies": {
-    "@types/node": "^20.0.0",
     "@types/bun": "latest",
+    "@types/node": "^20.0.0",
+    "@types/uuid": "^9.0.0",
     "typescript": "^5.0.0",
+    "prettier": "^3.0.0",
     "vitest": "^1.0.0"
   },
   "trustedDependencies": [
