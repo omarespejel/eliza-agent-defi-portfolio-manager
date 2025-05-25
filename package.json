@@ -1,0 +1,30 @@
+{
+  "name": "defi-portfolio-agent",
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "bun --watch src/index.ts",
+    "build": "bun build src/index.ts --outdir ./dist",
+    "start": "bun src/index.ts",
+    "test": "bun test",
+    "format": "bun fmt",
+    "clean": "rm -rf dist node_modules"
+  },
+  "dependencies": {
+    "@elizaos/core": "latest",
+    "@elizaos/plugin-evm": "latest",
+    "@elizaos/client-discord": "latest",
+    "ethers": "^6.0.0",
+    "viem": "^2.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "@types/bun": "latest",
+    "typescript": "^5.0.0",
+    "vitest": "^1.0.0"
+  },
+  "trustedDependencies": [
+    "@elizaos/core",
+    "@elizaos/plugin-evm"
+  ]
+}
