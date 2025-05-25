@@ -9,16 +9,7 @@ import { riskEvaluator } from "./evaluators/riskEvaluator.js";
 export const defiPortfolioPlugin: Plugin = {
   name: "defi-portfolio",
   description: "Comprehensive DeFi portfolio management capabilities",
-  actions: [
-    checkPortfolioAction,
-    executeSwapAction, 
-    rebalanceAction
-  ],
-  providers: [
-    priceProvider,
-    yieldProvider
-  ],
-  evaluators: [
-    riskEvaluator
-  ]
+  actions: [checkPortfolioAction, executeSwapAction, rebalanceAction],
+  providers: [priceProvider, yieldProvider],
+  evaluators: [riskEvaluator],
 };
