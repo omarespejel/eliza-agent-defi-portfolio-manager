@@ -18,14 +18,14 @@
     "setup": "bun scripts/setup.ts"
   },
   "dependencies": {
-    "@elizaos/core": "latest",
-    "@elizaos/plugin-evm": "latest",
-    "@elizaos/plugin-sql": "latest",
     "@elizaos/client-discord": "latest",
     "@elizaos/client-telegram": "latest",
+    "@elizaos/core": "latest",
+    "@elizaos/plugin-evm": "latest",
+    "@elizaos/plugin-sql": "^1.0.0-alpha.1",
     "ethers": "^6.0.0",
-    "viem": "^2.0.0",
-    "uuid": "^9.0.0"
+    "uuid": "^9.0.0",
+    "viem": "^2.0.0"
   },
   "devDependencies": {
     "@types/bun": "latest",
