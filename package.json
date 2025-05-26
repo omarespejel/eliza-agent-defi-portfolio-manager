@@ -30,9 +30,11 @@
     "setup:mainnet": "bun scripts/setup.ts --network mainnet"
   },
   "dependencies": {
+    "@elizaos/adapter-sqlite": "^0.25.6-alpha.1",
+    "@elizaos/client-discord": "latest",
     "@elizaos/core": "latest",
     "@elizaos/plugin-evm": "latest",
-    "@elizaos/client-discord": "latest",
+    "@elizaos/plugin-sql": "^1.0.0-alpha.1",
     "ethers": "^6.0.0"
   },
   "devDependencies": {

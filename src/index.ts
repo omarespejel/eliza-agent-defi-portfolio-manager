@@ -67,7 +67,11 @@ class DefiPortfolioAgent {
 
     const config = environmentManager.getConfig();
 
-    // Start Discord client if configured
+    // Temporarily disable Discord client for testing
+    console.log("ℹ️  Discord client disabled for testing");
+    
+    // Start Discord client if configured (commented out for now)
+    /*
     if (config.discordApiToken) {
       try {
         const discordClient = await DiscordClientInterface.start(this.runtime);
@@ -79,6 +83,7 @@ class DefiPortfolioAgent {
     } else {
       console.log("ℹ️  Discord client not configured (optional)");
     }
+    */
   }
 }
 
