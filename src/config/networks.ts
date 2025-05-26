@@ -47,7 +47,7 @@ export const ETHEREUM_NETWORKS: Record<NetworkType, NetworkConfig> = {
     name: "Ethereum Sepolia Testnet",
     type: NetworkType.TESTNET,
     chainId: 11155111, // Sepolia chain ID
-    rpcUrl: "https://sepolia.infura.io/v3/",
+    rpcUrl: "https://ethereum-sepolia-rpc.publicnode.com",
     explorerUrl: "https://sepolia.etherscan.io",
     nativeCurrency: {
       name: "Sepolia Ether",

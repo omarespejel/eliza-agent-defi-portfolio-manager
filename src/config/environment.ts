@@ -75,8 +75,8 @@ class EnvironmentManager {
 
   private validateNetwork(network: string | undefined): NetworkType {
     if (!network) {
-      console.warn("⚠️  NETWORK not specified, defaulting to DEVNET");
-      return NetworkType.DEVNET;
+      console.warn("⚠️  NETWORK not specified, defaulting to TESTNET (recommended for ElizaOS AI agents)");
+      return NetworkType.TESTNET;
     }
 
     if (!Object.values(NetworkType).includes(network as NetworkType)) {

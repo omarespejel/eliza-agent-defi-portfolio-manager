@@ -77,7 +77,7 @@ function setupEnvironment(options: SetupOptions) {
   console.log(`📝 Created .env file from template`);
 
   // Show network-specific setup instructions
-  const network = options.network || NetworkType.DEVNET;
+  const network = options.network || NetworkType.TESTNET;
   showNetworkSetupInstructions(network);
 }
 
@@ -86,7 +86,33 @@ function showNetworkSetupInstructions(network: NetworkType) {
   console.log("=" + "=".repeat(network.length + 20));
 
   switch (network) {
+    case NetworkType.TESTNET:
+      console.log("✅ RECOMMENDED for ElizaOS AI agent development");
+      console.log("");
+      console.log("1. Get testnet ETH from a faucet:");
+      console.log("   https://sepoliafaucet.com/");
+      console.log("   https://faucet.quicknode.com/ethereum/sepolia");
+      console.log("");
+      console.log("2. Set ETHEREUM_PRIVATE_KEY_TESTNET in .env");
+      console.log("   (Your Sepolia testnet account private key)");
+      console.log("");
+      console.log("3. Set your OPENAI_API_KEY in .env");
+      console.log("");
+      console.log(
+        "4. Optional: Set INFURA_PROJECT_ID for alternative RPC (default uses public node)",
+      );
+      console.log("");
+      console.log("💡 Why testnet is recommended for AI agents:");
+      console.log("- Real network conditions that mimic mainnet");
+      console.log("- Authentic blockchain environment");
+      console.log("- Persistent network with long block history");
+      console.log("- Multi-user testing environment");
+      break;
+
     case NetworkType.DEVNET:
+      console.log("⚠️  LIMITED USE - Only for rapid prototyping");
+      console.log("   For AI agents, testnet is strongly recommended");
+      console.log("");
       console.log("1. Start a local Ethereum devnet:");
       console.log("   npm install -g hardhat");
       console.log("   npx hardhat node");
@@ -100,20 +126,7 @@ function showNetworkSetupInstructions(network: NetworkType) {
       console.log("3. Set your OPENAI_API_KEY in .env");
       break;
 
-    case NetworkType.TESTNET:
-      console.log("1. Get testnet ETH from a faucet:");
-      console.log("   https://sepoliafaucet.com/");
-      console.log("   https://faucet.quicknode.com/ethereum/sepolia");
-      console.log("");
-      console.log("2. Set ETHEREUM_PRIVATE_KEY_TESTNET in .env");
-      console.log("   (Your Sepolia testnet account private key)");
-      console.log("");
-      console.log("3. Set your OPENAI_API_KEY in .env");
-      console.log("");
-      console.log(
-        "4. Optional: Set INFURA_PROJECT_ID for better RPC reliability",
-      );
-      break;
+
 
     case NetworkType.MAINNET:
       console.log("⚠️  MAINNET SETUP - REAL FUNDS AT RISK!");
@@ -158,10 +171,11 @@ if (process.argv.includes("--help") || process.argv.includes("-h")) {
   console.log("");
   console.log("Examples:");
   console.log(
-    "  bun run setup                       # Setup with devnet (default)",
+    "  bun run setup                       # Setup with testnet (default - recommended)",
   );
-  console.log("  bun run setup --network testnet     # Setup for testnet");
+  console.log("  bun run setup --network testnet     # Setup for testnet (recommended)");
   console.log("  bun run setup --network mainnet     # Setup for mainnet");
+  console.log("  bun run setup --network devnet      # Setup for devnet (limited use)");
   console.log(
     "  bun run setup --force               # Overwrite existing .env",
   );

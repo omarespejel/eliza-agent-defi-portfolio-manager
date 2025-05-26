@@ -1,10 +1,27 @@
 # Network Configuration Guide
 
-This guide explains how to configure the DeFi Portfolio Agent for different networks (devnet, testnet, mainnet) with proper security practices.
+This guide explains how to configure the DeFi Portfolio Agent for different networks with proper security practices. **For ElizaOS AI agents, testnet is strongly recommended over devnet.**
 
 ## Quick Start
 
-1. **Setup for development (devnet):**
+1. **Setup for development (testnet - RECOMMENDED):**
+
+   ```bash
+   bun run setup:testnet
+   # Edit .env with your testnet private key and API keys
+   bun run network-status
+   bun run dev
+   ```
+
+2. **Setup for production (mainnet):**
+   ```bash
+   bun run setup:mainnet
+   # Edit .env with your mainnet private key (SECURE!)
+   bun run network-status
+   bun run start
+   ```
+
+3. **Setup for rapid prototyping (devnet - LIMITED USE):**
 
    ```bash
    bun run setup:devnet
@@ -13,60 +30,46 @@ This guide explains how to configure the DeFi Portfolio Agent for different netw
    bun run dev
    ```
 
-2. **Setup for testing (testnet):**
+## Recommended Network: Testnet (Sepolia)
 
-   ```bash
-   bun run setup:testnet
-   # Edit .env with your testnet private key
-   bun run network-status
-   bun run start
-   ```
+**For ElizaOS AI agent development, testnet is strongly recommended over devnet:**
 
-3. **Setup for production (mainnet):**
-   ```bash
-   bun run setup:mainnet
-   # Edit .env with your mainnet private key (SECURE!)
-   bun run network-status
-   bun run start
-   ```
+### Why Testnet is Preferred for AI Agents:
+
+- **Real network conditions**: Public network that closely mimics mainnet behavior
+- **Authentic blockchain environment**: Real miners and nodes provide realistic network conditions  
+- **Persistent network**: Long block history and continuous operation (unlike session-based devnets)
+- **Multi-user testing**: Other developers active on network for realistic conditions
+- **Final validation**: Perfect stepping stone before mainnet deployment
+- **Network complexity**: Real network interactions that AI agents need to handle
+
+### Devnet Limitations for AI Agents:
+
+- **Isolated environment**: Doesn't reflect real-world blockchain conditions
+- **Simulated behavior**: May not match actual network dynamics that AI agents encounter
+- **Session-based**: Networks exist only during development sessions
+- **Missing complexity**: Lacks the real network interactions AI agents must handle
 
 ## Network Types
 
-### 🧪 Devnet (Development)
+### 🧪 Testnet (Sepolia) - **RECOMMENDED**
 
-- **Purpose**: Local development and testing
-- **Security Level**: LOW
-- **Real Funds**: No
-- **Private Key**: Optional (test keys only)
-
-**Setup:**
-
-```bash
-# Install and start local devnet
-npm install -g @shardlabs/starknet-devnet
-starknet-devnet --host 0.0.0.0 --port 5050
-
-# Configure environment
-NETWORK=devnet
-STARKNET_PRIVATE_KEY_DEVNET=0x1234... # Optional test key
-```
-
-### 🧪 Testnet (Goerli)
-
-- **Purpose**: Testing with real network conditions
+- **Purpose**: Development and testing with real network conditions
 - **Security Level**: MEDIUM
 - **Real Funds**: No (testnet tokens)
 - **Private Key**: Required for transactions
+- **Best for**: ElizaOS AI agent development
 
 **Setup:**
 
 ```bash
 # Get testnet ETH from faucet
-# https://faucet.goerli.starknet.io/
+# https://sepoliafaucet.com/
+# https://faucet.quicknode.com/ethereum/sepolia
 
 # Configure environment
 NETWORK=testnet
-STARKNET_PRIVATE_KEY_TESTNET=0xabcd... # Your testnet private key
+ETHEREUM_PRIVATE_KEY_TESTNET=0xabcd... # Your testnet private key
 INFURA_PROJECT_ID=your-project-id      # Recommended
 ```
 
@@ -82,10 +85,33 @@ INFURA_PROJECT_ID=your-project-id      # Recommended
 ```bash
 # Configure environment with EXTREME CARE
 NETWORK=mainnet
-STARKNET_PRIVATE_KEY_MAINNET=0x...     # SECURE PRIVATE KEY
+ETHEREUM_PRIVATE_KEY_MAINNET=0x...     # SECURE PRIVATE KEY
 INFURA_PROJECT_ID=your-project-id      # REQUIRED
 MAX_TRANSACTION_VALUE=1.0              # Safety limit
 REQUIRE_CONFIRMATION=true              # Keep enabled
+```
+
+### 🧪 Devnet (Development) - **LIMITED USE**
+
+- **Purpose**: Rapid prototyping and initial configuration testing only
+- **Security Level**: LOW
+- **Real Funds**: No
+- **Private Key**: Optional (test keys only)
+- **Best for**: Quick configuration testing, not AI agent development
+
+**Setup:**
+
+```bash
+# Install and start local devnet
+npm install -g hardhat
+npx hardhat node
+# OR
+npm install -g ganache
+ganache --host 0.0.0.0 --port 8545
+
+# Configure environment
+NETWORK=devnet
+ETHEREUM_PRIVATE_KEY_DEVNET=0x1234... # Optional test key
 ```
 
 ## Environment Variables
@@ -93,29 +119,29 @@ REQUIRE_CONFIRMATION=true              # Keep enabled
 ### Network Configuration
 
 ```bash
-# Primary network setting
-NETWORK=devnet|testnet|mainnet
+# Primary network setting (testnet recommended for development)
+NETWORK=testnet|mainnet|devnet
 ```
 
 ### Private Keys (Network-Specific)
 
 ```bash
-# Option 1: Network-specific keys (RECOMMENDED)
-STARKNET_PRIVATE_KEY_DEVNET=0x...
-STARKNET_PRIVATE_KEY_TESTNET=0x...
-STARKNET_PRIVATE_KEY_MAINNET=0x...
+# Network-specific keys (RECOMMENDED)
+ETHEREUM_PRIVATE_KEY_TESTNET=0x...  # RECOMMENDED for development
+ETHEREUM_PRIVATE_KEY_MAINNET=0x...  # Production only
+ETHEREUM_PRIVATE_KEY_DEVNET=0x...   # Limited use
 
-# Option 2: Generic fallback
-STARKNET_PRIVATE_KEY=0x...
+# Generic fallback (not recommended)
+ETHEREUM_PRIVATE_KEY=0x...
 ```
 
 ### RPC URLs (Optional Overrides)
 
 ```bash
-# StarkNet RPC endpoints
-STARKNET_RPC_URL_DEVNET=http://localhost:5050
-STARKNET_RPC_URL_TESTNET=https://starknet-goerli.infura.io/v3/
-STARKNET_RPC_URL_MAINNET=https://starknet-mainnet.infura.io/v3/
+# Ethereum RPC endpoints (Sepolia recommended for development)
+ETHEREUM_RPC_URL_TESTNET=https://ethereum-sepolia-rpc.publicnode.com
+ETHEREUM_RPC_URL_MAINNET=https://mainnet.infura.io/v3/
+ETHEREUM_RPC_URL_DEVNET=http://localhost:8545
 
 # API keys for RPC providers
 INFURA_PROJECT_ID=your-project-id
@@ -132,6 +158,25 @@ MAX_TRANSACTION_VALUE=1.0
 REQUIRE_CONFIRMATION=true
 ```
 
+## ElizaOS Best Practices for AI Agents
+
+### Recommended Development Workflow
+
+1. **Start with testnet** for all development and testing
+2. **Use devnet only** for rapid prototyping if needed
+3. **Deploy to mainnet** only after thorough testnet validation
+
+### Why This Matters for AI Agents
+
+AI agents need to handle real-world blockchain complexity:
+- Network congestion and variable gas prices
+- Transaction failures and retries
+- Real MEV (Maximum Extractable Value) conditions
+- Authentic DeFi protocol interactions
+- Real slippage and liquidity conditions
+
+Testnet provides these conditions; devnet does not.
+
 ## Security Best Practices
 
 ### 🔒 Private Key Security
@@ -140,12 +185,12 @@ REQUIRE_CONFIRMATION=true
 
    ```bash
    # ✅ Good: Separate keys
-   STARKNET_PRIVATE_KEY_DEVNET=0x1234...   # Test key
-   STARKNET_PRIVATE_KEY_TESTNET=0xabcd...  # Test key
-   STARKNET_PRIVATE_KEY_MAINNET=0x9876...  # REAL key
+   ETHEREUM_PRIVATE_KEY_TESTNET=0xabcd...  # Test key (recommended)
+   ETHEREUM_PRIVATE_KEY_MAINNET=0x9876...  # REAL key
+   ETHEREUM_PRIVATE_KEY_DEVNET=0x1234...   # Test key (limited use)
 
    # ❌ Bad: Same key everywhere
-   STARKNET_PRIVATE_KEY=0x1234...
+   ETHEREUM_PRIVATE_KEY=0x1234...
    ```
 
 2. **Never Commit Private Keys**
@@ -187,17 +232,20 @@ bun run network-status | grep "validation passed"
 
 1. Edit `.env` file:
    ```bash
-   NETWORK=testnet  # Change this line
+   NETWORK=testnet  # Recommended for development
    ```
 2. Restart the application
 
 ### Using Scripts
 
 ```bash
-# Setup for specific network
-bun run setup:devnet
-bun run setup:testnet
-bun run setup:mainnet
+# Setup for specific network (testnet recommended)
+bun run setup:testnet   # RECOMMENDED for development
+bun run setup:mainnet   # Production only
+bun run setup:devnet    # Limited use
+
+# Default setup now uses testnet
+bun run setup          # Equivalent to setup:testnet
 
 # Check status after switching
 bun run network-status
@@ -211,22 +259,22 @@ bun run network-status
 
    ```bash
    # Check your .env file has the right key
-   STARKNET_PRIVATE_KEY_MAINNET=0x...  # For mainnet
-   STARKNET_PRIVATE_KEY_TESTNET=0x...  # For testnet
+   ETHEREUM_PRIVATE_KEY_TESTNET=0x...  # For testnet (recommended)
+   ETHEREUM_PRIVATE_KEY_MAINNET=0x...  # For mainnet
    ```
 
 2. **"Invalid network" error**
 
    ```bash
    # Ensure NETWORK is set correctly
-   NETWORK=devnet  # Must be: devnet, testnet, or mainnet
+   NETWORK=testnet  # Recommended: testnet, mainnet, or devnet
    ```
 
 3. **RPC connection issues**
    ```bash
    # Check your RPC URL and API keys
    INFURA_PROJECT_ID=your-project-id
-   STARKNET_RPC_URL_MAINNET=https://starknet-mainnet.infura.io/v3/
+   ETHEREUM_RPC_URL_TESTNET=https://ethereum-sepolia-rpc.publicnode.com
    ```
 
 ### Debug Commands
@@ -246,13 +294,13 @@ DEBUG=* bun run start
 
 ### Before Mainnet Deployment
 
+- [ ] Thoroughly tested on testnet (not just devnet)
 - [ ] Different private keys for each network
 - [ ] Mainnet private key is secure (hardware wallet recommended)
 - [ ] `.env` file is not committed to version control
 - [ ] `REQUIRE_CONFIRMATION=true` for mainnet
 - [ ] `MAX_TRANSACTION_VALUE` is set to reasonable limit
 - [ ] Infura/Alchemy API key configured
-- [ ] Test thoroughly on testnet first
 - [ ] Monitor accounts for unauthorized activity
 - [ ] Have emergency procedures in place
 
@@ -270,11 +318,11 @@ DEBUG=* bun run start
 ### Multiple Environment Files
 
 ```bash
-# Development
+# Development (testnet recommended)
 .env.development
-NETWORK=devnet
+NETWORK=testnet
 
-# Staging
+# Staging (testnet)
 .env.staging
 NETWORK=testnet
 
@@ -287,10 +335,11 @@ NETWORK=mainnet
 
 ```bash
 # Use your own node
-STARKNET_RPC_URL_MAINNET=https://your-node.example.com
+ETHEREUM_RPC_URL_TESTNET=https://your-sepolia-node.example.com
+ETHEREUM_RPC_URL_MAINNET=https://your-mainnet-node.example.com
 
 # Load balancing
-STARKNET_RPC_URL_MAINNET=https://lb.your-infra.com/starknet
+ETHEREUM_RPC_URL_MAINNET=https://lb.your-infra.com/ethereum
 ```
 
 ### Hardware Wallet Integration
@@ -299,11 +348,11 @@ For maximum security on mainnet, consider integrating hardware wallets:
 
 ```typescript
 // Future enhancement - hardware wallet support
-import { HardwareWallet } from "@starknet/hardware-wallet";
+import { HardwareWallet } from "@ethereum/hardware-wallet";
 
 const wallet = new HardwareWallet({
   type: "ledger",
-  network: NetworkType.MAINNET,
+  network: "mainnet",
 });
 ```
 
