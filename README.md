@@ -1,6 +1,8 @@
 # DeFi Portfolio Agent
 
-AI-powered DeFi portfolio management agent built with ElizaOS and Ethereum.
+An AI agent that manages your DeFi portfolio on Ethereum. It analyzes positions, executes trades, and rebalances assets automatically.
+
+Built with ElizaOS for natural language interaction and secure private key management across development, testing, and production environments.
 
 ## Quick Start
 
@@ -29,114 +31,82 @@ AI-powered DeFi portfolio management agent built with ElizaOS and Ethereum.
    bun run start
    ```
 
-## Network Configuration
+## What It Does
 
-This agent supports multiple networks with secure private key management:
+The agent connects to DeFi protocols like Uniswap, Aave, and Compound. It:
 
-- **🧪 Devnet**: Local development (no real funds)
-- **🧪 Testnet**: Testing with Sepolia testnet
-- **🚨 Mainnet**: Production with real funds (enhanced security)
+- Tracks your token balances and positions
+- Monitors gas prices and market conditions  
+- Executes swaps and rebalancing trades
+- Manages risk through position limits
+- Provides portfolio insights via Discord
 
-### Quick Commands
+## Networks
+
+Three environments keep your funds safe:
+
+- **Devnet**: Local testing with fake tokens
+- **Testnet**: Sepolia network with test ETH
+- **Mainnet**: Real Ethereum with your money
 
 ```bash
-# Check current network status
+# Check your setup
 bun run network-status
 
-# Setup for specific networks
-bun run setup:devnet    # Development
+# Configure for each environment  
+bun run setup:devnet    # Local development
 bun run setup:testnet   # Testing
 bun run setup:mainnet   # Production
 
-# Start the agent
-bun run dev             # Development mode
-bun run start           # Production mode
+# Run the agent
+bun run dev    # Development
+bun run start  # Production
 ```
 
-For detailed network configuration and security best practices, see [NETWORK_SETUP.md](./NETWORK_SETUP.md).
+## Security
 
-## Security Features
+Your private keys stay separate by network. Mainnet gets extra protection:
 
-- ✅ Network-specific private key management
-- ✅ Automatic mainnet protection and validation
-- ✅ Transaction limits and confirmation requirements
-- ✅ Private key masking in logs
-- ✅ Suspicious pattern detection
-- ✅ Secure RPC endpoint configuration
+- Transaction limits prevent large losses
+- Confirmation required before trades
+- Test keys rejected on mainnet
+- Private keys masked in logs
 
-## Installation
+## Setup
 
 ```bash
-# Install dependencies
 bun install
-
-# Run setup wizard
 bun run setup
-
-# Check configuration
 bun run network-status
 ```
 
 ## Configuration
 
-The agent uses environment variables for configuration. See `env.example` for all available options.
-
-### Required Variables
+Set these in your `.env` file:
 
 ```bash
 NETWORK=devnet|testnet|mainnet
 OPENAI_API_KEY=your-openai-key
+
+# Separate keys for each network
+ETHEREUM_PRIVATE_KEY_DEVNET=0x...   
+ETHEREUM_PRIVATE_KEY_TESTNET=0x...  
+ETHEREUM_PRIVATE_KEY_MAINNET=0x...  # Keep this secure
 ```
 
-### Network-Specific Private Keys (Recommended)
+## Commands
 
 ```bash
-ETHEREUM_PRIVATE_KEY_DEVNET=0x...   # Development
-ETHEREUM_PRIVATE_KEY_TESTNET=0x...  # Testing
-ETHEREUM_PRIVATE_KEY_MAINNET=0x...  # Production (SECURE!)
+bun run dev              # Start development mode
+bun run start            # Run in production  
+bun run network-status   # Check configuration
+bun run test             # Run tests
 ```
-
-## Usage
-
-```bash
-# Development
-bun run dev
-
-# Production
-bun run start
-
-# Check network status
-bun run network-status
-
-# Type checking
-bun run type-check
-
-# Testing
-bun run test
-```
-
-## API Documentation
-
-Coming soon...
 
 ## Contributing
 
-1. Fork the repository
-2. Create a feature branch
-3. Test on devnet/testnet first
-4. Submit a pull request
+Test on devnet first. Then testnet. Never commit private keys.
 
 ## License
 
-MIT License
-
-/\*\*
-
-- Analyzes portfolio holdings and provides insights
-- @param runtime - Agent runtime instance
-- @param message - User message
-- @returns Portfolio analysis results
-  \*/
-  export const checkPortfolioAction: Action = {
-  // Implementation
-  };
+MIT
