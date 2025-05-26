@@ -23,7 +23,11 @@
     "lint": "bun run prettier --check .",
     "format": "bun run prettier --write .",
     "clean": "rm -rf dist node_modules",
-    "setup": "bun scripts/setup.ts"
+    "setup": "bun scripts/setup.ts",
+    "network-status": "bun scripts/network-status.ts",
+    "setup:devnet": "bun scripts/setup.ts --network devnet",
+    "setup:testnet": "bun scripts/setup.ts --network testnet",
+    "setup:mainnet": "bun scripts/setup.ts --network mainnet"
   },
   "dependencies": {
     "@elizaos/core": "latest",
