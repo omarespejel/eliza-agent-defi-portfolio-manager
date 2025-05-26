@@ -1,14 +1,7 @@
-import {
-  AgentRuntime,
-  Character,
-  ModelProviderName,
-  CacheStore,
-} from "@elizaos/core";
-import { EvmPlugin } from "@elizaos/plugin-evm";
-import { SqlDatabaseAdapter } from "@elizaos/plugin-sql";
+import { AgentRuntime, ModelProviderName } from "@elizaos/core";
+import { evmPlugin } from "@elizaos/plugin-evm";
 import { DiscordClientInterface } from "@elizaos/client-discord";
-import { defiManagerCharacter } from "./characters/defi-manager.js";
-import { defiPortfolioPlugin } from "./plugins/index.js";
+import { defiManagerCharacter } from "./characters/defi-manager";
 
 class DefiPortfolioAgent {
   private runtime?: AgentRuntime;
@@ -17,25 +10,16 @@ class DefiPortfolioAgent {
     try {
       console.log("🚀 Initializing DeFi Portfolio Agent...");
 
-      // Validate environment
       this.validateEnvironment();
 
-      // Create runtime with character and plugins
       this.runtime = new AgentRuntime({
         character: defiManagerCharacter,
         modelProvider: ModelProviderName.OPENAI,
-        plugins: [EvmPlugin, defiPortfolioPlugin],
-        databaseAdapter: new SqlDatabaseAdapter({
-          connectionString: process.env.DATABASE_URL || "sqlite://./agent.db",
-        }),
+        plugins: [evmPlugin],
         token: process.env.OPENAI_API_KEY!,
-        cacheStore: CacheStore.DATABASE,
       });
 
-      // Initialize runtime
       await this.runtime.initialize();
-
-      // Start clients
       await this.startClients();
 
       console.log("✅ DeFi Portfolio Agent is ready!");
@@ -59,17 +43,13 @@ class DefiPortfolioAgent {
   private async startClients() {
     if (!this.runtime) throw new Error("Runtime not initialized");
 
-    // Discord client
+    // Correct way: Use static start method, not constructor
     if (process.env.DISCORD_API_TOKEN) {
-      const discordClient = new DiscordClientInterface();
-      await discordClient.start(this.runtime);
+      const discordClient = await DiscordClientInterface.start(this.runtime);
       console.log("✅ Discord client started");
     }
-
-    // Add other clients as needed
   }
 }
 
-// Start the agent
 const agent = new DefiPortfolioAgent();
 agent.initialize();
