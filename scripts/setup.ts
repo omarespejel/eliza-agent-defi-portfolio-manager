@@ -107,6 +107,13 @@ function showNetworkSetupInstructions(network: NetworkType) {
       console.log("- Authentic blockchain environment");
       console.log("- Persistent network with long block history");
       console.log("- Multi-user testing environment");
+      console.log("");
+      console.log("🔒 Enhanced security features enabled by default:");
+      console.log("- Conservative transaction limits (0.1 ETH)");
+      console.log("- Transaction confirmation required");
+      console.log("- Daily spending limits (1.0 ETH)");
+      console.log("- Gas price protection (50 gwei max)");
+      console.log("- Transaction logging enabled");
       break;
 
     case NetworkType.DEVNET:
@@ -125,8 +132,6 @@ function showNetworkSetupInstructions(network: NetworkType) {
       console.log("");
       console.log("3. Set your OPENAI_API_KEY in .env");
       break;
-
-
 
     case NetworkType.MAINNET:
       console.log("⚠️  MAINNET SETUP - REAL FUNDS AT RISK!");
@@ -173,9 +178,13 @@ if (process.argv.includes("--help") || process.argv.includes("-h")) {
   console.log(
     "  bun run setup                       # Setup with testnet (default - recommended)",
   );
-  console.log("  bun run setup --network testnet     # Setup for testnet (recommended)");
+  console.log(
+    "  bun run setup --network testnet     # Setup for testnet (recommended)",
+  );
   console.log("  bun run setup --network mainnet     # Setup for mainnet");
-  console.log("  bun run setup --network devnet      # Setup for devnet (limited use)");
+  console.log(
+    "  bun run setup --network devnet      # Setup for devnet (limited use)",
+  );
   console.log(
     "  bun run setup --force               # Overwrite existing .env",
   );

@@ -14,6 +14,7 @@ This guide explains how to configure the DeFi Portfolio Agent for different netw
    ```
 
 2. **Setup for production (mainnet):**
+
    ```bash
    bun run setup:mainnet
    # Edit .env with your mainnet private key (SECURE!)
@@ -37,7 +38,7 @@ This guide explains how to configure the DeFi Portfolio Agent for different netw
 ### Why Testnet is Preferred for AI Agents:
 
 - **Real network conditions**: Public network that closely mimics mainnet behavior
-- **Authentic blockchain environment**: Real miners and nodes provide realistic network conditions  
+- **Authentic blockchain environment**: Real miners and nodes provide realistic network conditions
 - **Persistent network**: Long block history and continuous operation (unlike session-based devnets)
 - **Multi-user testing**: Other developers active on network for realistic conditions
 - **Final validation**: Perfect stepping stone before mainnet deployment
@@ -169,6 +170,7 @@ REQUIRE_CONFIRMATION=true
 ### Why This Matters for AI Agents
 
 AI agents need to handle real-world blockchain complexity:
+
 - Network congestion and variable gas prices
 - Transaction failures and retries
 - Real MEV (Maximum Extractable Value) conditions

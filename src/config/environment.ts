@@ -19,10 +19,26 @@ export interface EnvironmentConfig {
   // RPC URLs (can contain API keys)
   ethereumRpcUrl?: string;
 
-  // Security Settings
+  // Basic Security Settings
   enableMainnetProtection: boolean;
   maxTransactionValue?: string; // in ETH
   requireConfirmation: boolean;
+
+  // Enhanced Security Settings
+  dailyTransactionLimit?: string; // in ETH
+  maxGasPrice?: string; // in wei
+  enableTransactionLogging: boolean;
+  whitelistMode: boolean;
+  allowedAddresses?: string[]; // comma-separated addresses
+
+  // Advanced Security Settings
+  enableAnomalyDetection: boolean;
+  alertOnLargeTransactions: boolean;
+  alertThresholdEth?: string;
+  maxTransactionsPerHour?: number;
+  maxTransactionsPerDay?: number;
+  emergencyStopEnabled: boolean;
+  emergencyContactAddress?: string;
 }
 
 class EnvironmentManager {
@@ -33,6 +49,8 @@ class EnvironmentManager {
     "discordApiToken",
     "infuraProjectId",
     "alchemyApiKey",
+    "emergencyContactAddress",
+    "allowedAddresses",
   ]);
 
   constructor() {
@@ -70,12 +88,36 @@ class EnvironmentManager {
       requireConfirmation:
         network === NetworkType.MAINNET ||
         process.env.REQUIRE_CONFIRMATION === "true",
+
+      // Enhanced Security Settings
+      dailyTransactionLimit: process.env.DAILY_TRANSACTION_LIMIT,
+      maxGasPrice: process.env.MAX_GAS_PRICE,
+      enableTransactionLogging:
+        process.env.ENABLE_TRANSACTION_LOGGING === "true",
+      whitelistMode: process.env.WHITELIST_MODE === "true",
+      allowedAddresses: process.env.ALLOWED_ADDRESSES?.split(","),
+
+      // Advanced Security Settings
+      enableAnomalyDetection: process.env.ENABLE_ANOMALY_DETECTION === "true",
+      alertOnLargeTransactions:
+        process.env.ALERT_ON_LARGE_TRANSACTIONS === "true",
+      alertThresholdEth: process.env.ALERT_THRESHOLD_ETH,
+      maxTransactionsPerHour: process.env.MAX_TRANSACTIONS_PER_HOUR
+        ? parseInt(process.env.MAX_TRANSACTIONS_PER_HOUR)
+        : undefined,
+      maxTransactionsPerDay: process.env.MAX_TRANSACTIONS_PER_DAY
+        ? parseInt(process.env.MAX_TRANSACTIONS_PER_DAY)
+        : undefined,
+      emergencyStopEnabled: process.env.EMERGENCY_STOP_ENABLED === "true",
+      emergencyContactAddress: process.env.EMERGENCY_CONTACT_ADDRESS,
     };
   }
 
   private validateNetwork(network: string | undefined): NetworkType {
     if (!network) {
-      console.warn("⚠️  NETWORK not specified, defaulting to TESTNET (recommended for ElizaOS AI agents)");
+      console.warn(
+        "⚠️  NETWORK not specified, defaulting to TESTNET (recommended for ElizaOS AI agents)",
+      );
       return NetworkType.TESTNET;
     }
 
@@ -201,19 +243,77 @@ class EnvironmentManager {
     console.log(`🔗 Chain ID: ${networkConfig.chainId}`);
     console.log(`🧪 Test Network: ${networkConfig.isTestnet ? "Yes" : "No"}`);
 
+    // Basic security settings
+    console.log(
+      `💰 Max transaction value: ${this.config.maxTransactionValue || "1.0"} ETH`,
+    );
+    console.log(`✅ Confirmation required: ${this.config.requireConfirmation}`);
+
+    // Enhanced security settings
+    if (this.config.dailyTransactionLimit) {
+      console.log(
+        `📊 Daily transaction limit: ${this.config.dailyTransactionLimit} ETH`,
+      );
+    }
+    if (this.config.maxGasPrice) {
+      console.log(
+        `⛽ Max gas price: ${parseInt(this.config.maxGasPrice) / 1e9} gwei`,
+      );
+    }
+    console.log(
+      `📝 Transaction logging: ${this.config.enableTransactionLogging ? "Enabled" : "Disabled"}`,
+    );
+    console.log(
+      `🛡️ Whitelist mode: ${this.config.whitelistMode ? "Enabled" : "Disabled"}`,
+    );
+
     if (network === NetworkType.MAINNET) {
       console.log("🔒 Mainnet protection enabled");
-      console.log(
-        `💰 Max transaction value: ${this.config.maxTransactionValue} ETH`,
-      );
-      console.log(
-        `✅ Confirmation required: ${this.config.requireConfirmation}`,
-      );
+
+      // Additional mainnet validations
+      if (
+        this.config.whitelistMode &&
+        (!this.config.allowedAddresses ||
+          this.config.allowedAddresses.length === 0)
+      ) {
+        console.warn(
+          "⚠️  Whitelist mode enabled but no allowed addresses configured",
+        );
+      }
+
+      if (!this.config.enableTransactionLogging) {
+        console.warn(
+          "⚠️  Transaction logging disabled on mainnet - not recommended",
+        );
+      }
+    }
+
+    // Advanced security warnings
+    if (this.config.emergencyStopEnabled) {
+      console.log("🚨 Emergency stop enabled");
     }
 
     // Validate required keys for the network
     if (network === NetworkType.MAINNET && !this.config.ethereumPrivateKey) {
       throw new Error("Ethereum private key required for mainnet operations");
+    }
+
+    // Validate whitelist addresses if whitelist mode is enabled
+    if (this.config.whitelistMode && this.config.allowedAddresses) {
+      this.validateWhitelistAddresses(this.config.allowedAddresses);
+    }
+  }
+
+  private validateWhitelistAddresses(addresses: string[]): void {
+    const invalidAddresses = addresses.filter((addr) => {
+      const trimmed = addr.trim();
+      return !trimmed.startsWith("0x") || trimmed.length !== 42;
+    });
+
+    if (invalidAddresses.length > 0) {
+      throw new Error(
+        `Invalid whitelist addresses: ${invalidAddresses.join(", ")}`,
+      );
     }
   }
 
@@ -236,6 +336,65 @@ class EnvironmentManager {
 
   isTestnet(): boolean {
     return this.config.network !== NetworkType.MAINNET;
+  }
+
+  // Security helper methods
+  isTransactionAllowed(
+    toAddress: string,
+    valueEth: number,
+  ): { allowed: boolean; reason?: string } {
+    // Check whitelist mode
+    if (this.config.whitelistMode) {
+      if (
+        !this.config.allowedAddresses ||
+        !this.config.allowedAddresses.includes(toAddress.toLowerCase())
+      ) {
+        return { allowed: false, reason: "Address not in whitelist" };
+      }
+    }
+
+    // Check transaction value limit
+    const maxValue = parseFloat(this.config.maxTransactionValue || "1.0");
+    if (valueEth > maxValue) {
+      return {
+        allowed: false,
+        reason: `Transaction value ${valueEth} ETH exceeds limit of ${maxValue} ETH`,
+      };
+    }
+
+    // Check alert threshold
+    if (this.config.alertOnLargeTransactions && this.config.alertThresholdEth) {
+      const alertThreshold = parseFloat(this.config.alertThresholdEth);
+      if (valueEth > alertThreshold) {
+        console.warn(
+          `⚠️  Large transaction alert: ${valueEth} ETH exceeds threshold of ${alertThreshold} ETH`,
+        );
+      }
+    }
+
+    return { allowed: true };
+  }
+
+  isGasPriceAllowed(gasPriceWei: string): boolean {
+    if (!this.config.maxGasPrice) return true;
+    return parseInt(gasPriceWei) <= parseInt(this.config.maxGasPrice);
+  }
+
+  getSecurityLevel(): "LOW" | "MEDIUM" | "HIGH" | "MAXIMUM" {
+    if (this.config.network === NetworkType.MAINNET) {
+      if (
+        this.config.whitelistMode &&
+        this.config.enableTransactionLogging &&
+        this.config.emergencyStopEnabled
+      ) {
+        return "MAXIMUM";
+      }
+      return "HIGH";
+    } else if (this.config.network === NetworkType.TESTNET) {
+      return this.config.enableTransactionLogging ? "MEDIUM" : "LOW";
+    } else {
+      return "LOW";
+    }
   }
 
   // Security helpers

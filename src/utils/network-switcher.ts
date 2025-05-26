@@ -36,17 +36,8 @@ export class NetworkSwitcher {
     };
   }
 
-  static getSecurityLevel(): "LOW" | "MEDIUM" | "HIGH" | "CRITICAL" {
-    const network = this.getCurrentNetwork();
-    const envConfig = environmentManager.getConfig();
-
-    if (network === NetworkType.MAINNET) {
-      return envConfig.enableMainnetProtection ? "HIGH" : "CRITICAL";
-    } else if (network === NetworkType.TESTNET) {
-      return "MEDIUM";
-    } else {
-      return "LOW";
-    }
+  static getSecurityLevel(): "LOW" | "MEDIUM" | "HIGH" | "MAXIMUM" {
+    return environmentManager.getSecurityLevel();
   }
 
   static getNetworkWarnings(): string[] {
