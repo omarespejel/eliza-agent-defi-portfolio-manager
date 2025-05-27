@@ -1,6 +1,11 @@
 import type { Character } from "@elizaos/core";
 import { ModelProviderName } from "@elizaos/core";
 import { evmPlugin } from "@elizaos/plugin-evm";
+import {
+  checkPortfolioAction,
+  getEthPriceAction,
+  analyzeRiskAction,
+} from "../actions/defi-actions.js";
 
 export const defiManagerCharacter: Character = {
   name: "DeFi Portfolio Manager",

@@ -5,6 +5,12 @@ import { defiManagerCharacter } from "./characters/defi-manager.js";
 import { environmentManager } from "./config/environment.js";
 import { NetworkType } from "./config/networks.js";
 import { PostgresDatabaseAdapter } from "@elizaos/adapter-postgres";
+import { CLIInterface } from "./cli/interactive.js";
+import {
+  checkPortfolioAction,
+  getEthPriceAction,
+  analyzeRiskAction,
+} from "./actions/defi-actions.js";
 import fs from "node:fs";
 
 class DefiPortfolioAgent {
@@ -44,6 +50,12 @@ class DefiPortfolioAgent {
       });
 
       await this.runtime.initialize();
+
+      // Register DeFi actions
+      this.runtime.registerAction(checkPortfolioAction);
+      this.runtime.registerAction(getEthPriceAction);
+      this.runtime.registerAction(analyzeRiskAction);
+
       await this.startClients();
 
       console.log(`✅ DeFi Portfolio Agent is ready on ${networkConfig.name}!`);
@@ -78,23 +90,18 @@ class DefiPortfolioAgent {
 
     const config = environmentManager.getConfig();
 
-    // Temporarily disable Discord client for testing
-    console.log("ℹ️  Discord client disabled for testing");
-
-    // Start Discord client if configured (commented out for now)
-    /*
-    if (config.discordApiToken) {
-      try {
-        const discordClient = await DiscordClientInterface.start(this.runtime);
-        console.log("✅ Discord client started");
-      } catch (error) {
-        console.error("❌ Failed to start Discord client:", error);
-        // Don't exit - Discord is optional
-      }
-    } else {
-      console.log("ℹ️  Discord client not configured (optional)");
+    // Start CLI interface instead of Discord
+    console.log("🖥️  Starting CLI interface...");
+    try {
+      const cliInterface = new CLIInterface(this.runtime);
+      await cliInterface.start();
+    } catch (error) {
+      console.error("❌ Failed to start CLI interface:", error);
+      console.log("ℹ️  You can still interact with the agent programmatically");
     }
-    */
+
+    // Discord client is disabled for this implementation
+    console.log("ℹ️  Discord client disabled - using CLI interface instead");
   }
 }
 
