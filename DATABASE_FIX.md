@@ -123,6 +123,7 @@ POSTGRES_URL=postgresql://username:password@your-postgres-host:5432/database_nam
 ```
 
 Popular options:
+
 - AWS RDS PostgreSQL
 - Google Cloud SQL
 - Heroku Postgres
@@ -146,4 +147,4 @@ You should see this when the fix works:
 ✅ DeFi Portfolio Agent is ready on Ethereum Sepolia Testnet!
 ```
 
-The `better-sqlite3` binding error should be completely gone! 🎉 
+The `better-sqlite3` binding error should be completely gone! 🎉

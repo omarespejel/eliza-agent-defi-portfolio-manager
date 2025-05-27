@@ -29,8 +29,9 @@ class DefiPortfolioAgent {
 
       // Initialize database adapter (PostgreSQL to avoid better-sqlite3 issues)
       const databaseAdapter = new PostgresDatabaseAdapter({
-        connectionString: process.env.POSTGRES_URL || "postgresql://localhost:5432/eliza_agent",
-        parseInputs: true
+        connectionString:
+          process.env.POSTGRES_URL || "postgresql://localhost:5432/eliza_agent",
+        parseInputs: true,
       });
       await databaseAdapter.init();
 
@@ -79,7 +80,7 @@ class DefiPortfolioAgent {
 
     // Temporarily disable Discord client for testing
     console.log("ℹ️  Discord client disabled for testing");
-    
+
     // Start Discord client if configured (commented out for now)
     /*
     if (config.discordApiToken) {

@@ -7,11 +7,11 @@ export const defiManagerCharacter: Character = {
   username: "defi_manager",
   modelProvider: ModelProviderName.OPENAI,
   plugins: [evmPlugin],
-  
+
   // Add the missing settings object
   settings: {
     ragKnowledge: true,
-    secrets: {}
+    secrets: {},
   },
 
   bio: [

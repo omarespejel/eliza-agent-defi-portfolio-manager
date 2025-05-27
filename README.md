@@ -12,10 +12,10 @@ Built with ElizaOS for natural language interaction and secure private key manag
 
    ```bash
    bun install
-   
+
    # Start PostgreSQL database (fixes better-sqlite3 issues)
    bun run db:start
-   
+
    bun run setup:testnet
    # Edit .env with your testnet private key and API keys
    bun run network-status
@@ -27,7 +27,7 @@ Built with ElizaOS for natural language interaction and secure private key manag
    ```bash
    # Start PostgreSQL database
    bun run db:start
-   
+
    bun run setup:mainnet
    # Edit .env with secure mainnet private key
    bun run start
