@@ -4,6 +4,8 @@ import { DiscordClientInterface } from "@elizaos/client-discord";
 import { defiManagerCharacter } from "./characters/defi-manager.js";
 import { environmentManager } from "./config/environment.js";
 import { NetworkType } from "./config/networks.js";
+import { PostgresDatabaseAdapter } from "@elizaos/adapter-postgres";
+import fs from "node:fs";
 
 class DefiPortfolioAgent {
   private runtime?: AgentRuntime;
@@ -25,7 +27,15 @@ class DefiPortfolioAgent {
         this.performMainnetSecurityChecks();
       }
 
+      // Initialize database adapter (PostgreSQL to avoid better-sqlite3 issues)
+      const databaseAdapter = new PostgresDatabaseAdapter({
+        connectionString: process.env.POSTGRES_URL || "postgresql://localhost:5432/eliza_agent",
+        parseInputs: true
+      });
+      await databaseAdapter.init();
+
       this.runtime = new AgentRuntime({
+        databaseAdapter,
         character: defiManagerCharacter,
         modelProvider: ModelProviderName.OPENAI,
         plugins: [evmPlugin],

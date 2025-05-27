@@ -27,10 +27,14 @@
     "network-status": "bun scripts/network-status.ts",
     "setup:devnet": "bun scripts/setup.ts --network devnet",
     "setup:testnet": "bun scripts/setup.ts --network testnet",
-    "setup:mainnet": "bun scripts/setup.ts --network mainnet"
+    "setup:mainnet": "bun scripts/setup.ts --network mainnet",
+    "db:start": "docker-compose up -d postgres",
+    "db:stop": "docker-compose down",
+    "db:logs": "docker-compose logs -f postgres",
+    "db:reset": "docker-compose down -v && docker-compose up -d postgres"
   },
   "dependencies": {
-    "@elizaos/adapter-sqlite": "^0.25.6-alpha.1",
+    "@elizaos/adapter-postgres": "^0.25.6-alpha.1",
     "@elizaos/client-discord": "latest",
     "@elizaos/core": "latest",
     "@elizaos/plugin-evm": "latest",
@@ -41,6 +45,7 @@
     "@types/bun": "latest",
     "@types/node": "^20.0.0",
     "@types/uuid": "^9.0.0",
+    "node-gyp": "^11.2.0",
     "prettier": "^3.0.0",
     "typescript": "^5.8.3",
     "vitest": "^1.0.0"

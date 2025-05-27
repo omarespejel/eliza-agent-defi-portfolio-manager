@@ -4,12 +4,18 @@ An AI agent that manages your DeFi portfolio on Ethereum. It analyzes positions,
 
 Built with ElizaOS for natural language interaction and secure private key management across development, testing, and production environments.
 
+> **🔧 Database Fix**: This project now uses PostgreSQL instead of SQLite to avoid `better-sqlite3` native compilation issues on macOS ARM64. See [DATABASE_FIX.md](DATABASE_FIX.md) for details.
+
 ## Quick Start
 
 1. **Setup for development (Recommended):**
 
    ```bash
    bun install
+   
+   # Start PostgreSQL database (fixes better-sqlite3 issues)
+   bun run db:start
+   
    bun run setup:testnet
    # Edit .env with your testnet private key and API keys
    bun run network-status
@@ -19,6 +25,9 @@ Built with ElizaOS for natural language interaction and secure private key manag
 2. **Setup for mainnet (⚠️ REAL FUNDS):**
 
    ```bash
+   # Start PostgreSQL database
+   bun run db:start
+   
    bun run setup:mainnet
    # Edit .env with secure mainnet private key
    bun run start
