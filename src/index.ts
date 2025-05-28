@@ -10,6 +10,7 @@ import {
   checkPortfolioAction,
   getEthPriceAction,
   analyzeRiskAction,
+  optimizePortfolioAction,
 } from "./actions/defi-actions.js";
 import fs from "node:fs";
 
@@ -50,6 +51,7 @@ class DefiPortfolioAgent {
       this.runtime.registerAction(checkPortfolioAction);
       this.runtime.registerAction(getEthPriceAction);
       this.runtime.registerAction(analyzeRiskAction);
+      this.runtime.registerAction(optimizePortfolioAction);
 
       await this.startClients();
 

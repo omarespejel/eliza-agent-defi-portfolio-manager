@@ -6,6 +6,8 @@ export interface EnvironmentConfig {
   openaiApiKey: string;
   infuraProjectId?: string;
   alchemyApiKey?: string;
+  coingeckoApiKey?: string;
+  walletAddress?: string;
 
   discordApiToken?: string;
   discordApplicationId?: string;
@@ -41,6 +43,8 @@ class EnvironmentManager {
     "discordApiToken",
     "infuraProjectId",
     "alchemyApiKey",
+    "coingeckoApiKey",
+    "walletAddress",
     "emergencyContactAddress",
     "allowedAddresses",
   ]);
@@ -60,6 +64,8 @@ class EnvironmentManager {
       openaiApiKey: this.getRequiredEnv("OPENAI_API_KEY"),
       infuraProjectId: process.env.INFURA_PROJECT_ID,
       alchemyApiKey: process.env.ALCHEMY_API_KEY,
+      coingeckoApiKey: process.env.COINGECKO_API_KEY,
+      walletAddress: process.env.WALLET_ADDRESS,
 
       // Discord
       discordApiToken: process.env.DISCORD_API_TOKEN,
