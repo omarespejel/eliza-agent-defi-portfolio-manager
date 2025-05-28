@@ -44,7 +44,7 @@ export interface DefiPosition {
 
 export class DataService {
   private coingeckoBaseUrl = "https://api.coingecko.com/api/v3";
-  private alchemyBaseUrl = "https://eth-mainnet.g.alchemy.com/v2";
+  private alchemyBaseUrl: string;
 
   // Token symbol to CoinGecko ID mapping
   private tokenMap: Record<string, string> = {
@@ -115,7 +115,19 @@ export class DataService {
     yearn: "yearn-finance",
   };
 
-  constructor(private runtime: IAgentRuntime) {}
+  constructor(private runtime: IAgentRuntime) {
+    // Determine the correct Alchemy endpoint based on network
+    const network = process.env.NETWORK?.toLowerCase() || "testnet";
+    if (network === "mainnet") {
+      this.alchemyBaseUrl = "https://eth-mainnet.g.alchemy.com/v2";
+    } else {
+      this.alchemyBaseUrl = "https://eth-sepolia.g.alchemy.com/v2";
+    }
+
+    console.log(
+      `🔗 DataService - Using Alchemy endpoint: ${this.alchemyBaseUrl.split("/v2")[0]}/v2/***`,
+    );
+  }
 
   async getTokenPrice(tokenSymbolOrId: string): Promise<TokenPriceData> {
     try {
@@ -256,6 +268,10 @@ export class DataService {
       }
 
       console.log("🌐 DataService - Making Alchemy API calls...");
+      console.log(
+        `🔗 DataService - Alchemy URL: ${this.alchemyBaseUrl}/${alchemyApiKey ? "***" : "NO_KEY"}`,
+      );
+
       const response = await axios.post(
         `${this.alchemyBaseUrl}/${alchemyApiKey}`,
         {
@@ -265,6 +281,17 @@ export class DataService {
           id: 1,
         },
       );
+
+      console.log(
+        `📊 DataService - Token balances response status: ${response.status}`,
+      );
+      if (response.data.error) {
+        console.error(
+          "❌ DataService - Alchemy API error:",
+          response.data.error,
+        );
+        throw new Error(`Alchemy API error: ${response.data.error.message}`);
+      }
 
       // Get ETH balance
       const ethResponse = await axios.post(
@@ -276,6 +303,19 @@ export class DataService {
           id: 2,
         },
       );
+
+      console.log(
+        `💰 DataService - ETH balance response status: ${ethResponse.status}`,
+      );
+      if (ethResponse.data.error) {
+        console.error(
+          "❌ DataService - ETH balance API error:",
+          ethResponse.data.error,
+        );
+        throw new Error(
+          `ETH balance API error: ${ethResponse.data.error.message}`,
+        );
+      }
 
       const ethBalance = parseInt(ethResponse.data.result, 16) / 1e18;
       const ethPrice = (await this.getEthPrice()).price;
