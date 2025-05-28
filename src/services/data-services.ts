@@ -1,6 +1,16 @@
 import axios from "axios";
 import type { IAgentRuntime } from "@elizaos/core";
 
+export interface TokenPriceData {
+  symbol: string;
+  name: string;
+  price: number;
+  change24h: number;
+  volume24h: number;
+  marketCap: number;
+  lastUpdated: string;
+}
+
 export interface EthPriceData {
   price: number;
   change24h: number;
@@ -36,17 +46,100 @@ export class DataService {
   private coingeckoBaseUrl = "https://api.coingecko.com/api/v3";
   private alchemyBaseUrl = "https://eth-mainnet.g.alchemy.com/v2";
 
+  // Token symbol to CoinGecko ID mapping
+  private tokenMap: Record<string, string> = {
+    btc: "bitcoin",
+    bitcoin: "bitcoin",
+    eth: "ethereum",
+    ethereum: "ethereum",
+    usdc: "usd-coin",
+    usdt: "tether",
+    bnb: "binancecoin",
+    ada: "cardano",
+    cardano: "cardano",
+    sol: "solana",
+    solana: "solana",
+    xrp: "ripple",
+    ripple: "ripple",
+    dot: "polkadot",
+    polkadot: "polkadot",
+    doge: "dogecoin",
+    dogecoin: "dogecoin",
+    avax: "avalanche-2",
+    avalanche: "avalanche-2",
+    matic: "matic-network",
+    polygon: "matic-network",
+    link: "chainlink",
+    chainlink: "chainlink",
+    uni: "uniswap",
+    uniswap: "uniswap",
+    ltc: "litecoin",
+    litecoin: "litecoin",
+    atom: "cosmos",
+    cosmos: "cosmos",
+    icp: "internet-computer",
+    near: "near",
+    algo: "algorand",
+    algorand: "algorand",
+    xlm: "stellar",
+    stellar: "stellar",
+    vet: "vechain",
+    vechain: "vechain",
+    fil: "filecoin",
+    filecoin: "filecoin",
+    trx: "tron",
+    tron: "tron",
+    etc: "ethereum-classic",
+    hbar: "hedera-hashgraph",
+    apt: "aptos",
+    aptos: "aptos",
+    op: "optimism",
+    optimism: "optimism",
+    arb: "arbitrum",
+    arbitrum: "arbitrum",
+    ldo: "lido-dao",
+    lido: "lido-dao",
+    mkr: "maker",
+    maker: "maker",
+    aave: "aave",
+    comp: "compound-governance-token",
+    compound: "compound-governance-token",
+    crv: "curve-dao-token",
+    curve: "curve-dao-token",
+    snx: "havven",
+    synthetix: "havven",
+    sushi: "sushi",
+    sushiswap: "sushi",
+    "1inch": "1inch",
+    yfi: "yearn-finance",
+    yearn: "yearn-finance",
+  };
+
   constructor(private runtime: IAgentRuntime) {}
 
-  async getEthPrice(): Promise<EthPriceData> {
+  async getTokenPrice(tokenSymbolOrId: string): Promise<TokenPriceData> {
     try {
+      const tokenId = this.resolveTokenId(tokenSymbolOrId.toLowerCase());
+
       const response = await axios.get(
-        `${this.coingeckoBaseUrl}/simple/price?ids=ethereum&vs_currencies=usd&include_24hr_change=true&include_24hr_vol=true&include_market_cap=true`,
+        `${this.coingeckoBaseUrl}/simple/price?ids=${tokenId}&vs_currencies=usd&include_24hr_change=true&include_24hr_vol=true&include_market_cap=true`,
       );
 
-      const data = response.data.ethereum;
+      const data = response.data[tokenId];
+      if (!data) {
+        throw new Error(`Token ${tokenSymbolOrId} not found`);
+      }
+
+      // Get token info for name and symbol
+      const infoResponse = await axios.get(
+        `${this.coingeckoBaseUrl}/coins/${tokenId}`,
+      );
+      const tokenInfo = infoResponse.data;
 
       return {
+        symbol:
+          tokenInfo.symbol?.toUpperCase() || tokenSymbolOrId.toUpperCase(),
+        name: tokenInfo.name || tokenSymbolOrId,
         price: data.usd,
         change24h: data.usd_24h_change || 0,
         volume24h: data.usd_24h_vol || 0,
@@ -54,16 +147,57 @@ export class DataService {
         lastUpdated: new Date().toISOString(),
       };
     } catch (error) {
-      console.error("Error fetching ETH price:", error);
-      // Fallback to mock data if API fails
+      console.error(`Error fetching ${tokenSymbolOrId} price:`, error);
+      // Return fallback data
       return {
-        price: 2400,
-        change24h: 2.5,
-        volume24h: 15000000000,
-        marketCap: 288000000000,
+        symbol: tokenSymbolOrId.toUpperCase(),
+        name: tokenSymbolOrId,
+        price: 0,
+        change24h: 0,
+        volume24h: 0,
+        marketCap: 0,
         lastUpdated: new Date().toISOString(),
       };
     }
+  }
+
+  private resolveTokenId(input: string): string {
+    // First check our mapping
+    if (this.tokenMap[input]) {
+      return this.tokenMap[input];
+    }
+
+    // If not in mapping, assume it's already a CoinGecko ID
+    return input;
+  }
+
+  async searchToken(query: string): Promise<string[]> {
+    try {
+      const response = await axios.get(
+        `${this.coingeckoBaseUrl}/search?query=${encodeURIComponent(query)}`,
+      );
+      const coins = response.data.coins || [];
+
+      return coins.slice(0, 5).map((coin: any) => ({
+        id: coin.id,
+        name: coin.name,
+        symbol: coin.symbol,
+      }));
+    } catch (error) {
+      console.error("Error searching tokens:", error);
+      return [];
+    }
+  }
+
+  async getEthPrice(): Promise<EthPriceData> {
+    const tokenData = await this.getTokenPrice("ethereum");
+    return {
+      price: tokenData.price,
+      change24h: tokenData.change24h,
+      volume24h: tokenData.volume24h,
+      marketCap: tokenData.marketCap,
+      lastUpdated: tokenData.lastUpdated,
+    };
   }
 
   async getPortfolioData(walletAddress?: string): Promise<PortfolioData> {

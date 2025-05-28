@@ -511,3 +511,232 @@ ${portfolioData.defiPositions
     ],
   ],
 };
+
+export const getTokenPriceAction: Action = {
+  name: "GET_TOKEN_PRICE",
+  similes: [
+    "price of",
+    "get price",
+    "what's the price",
+    "how much is",
+    "current price",
+    "price check",
+    "btc price",
+    "bitcoin price",
+    "token price",
+  ],
+  description: "Get current price and market data for any cryptocurrency token",
+
+  validate: async (runtime: IAgentRuntime, message: Memory) => {
+    const text = message.content.text?.toLowerCase() || "";
+
+    // Check if message contains price-related keywords
+    const priceKeywords = ["price", "cost", "worth", "value", "how much"];
+    const hasPriceKeyword = priceKeywords.some((keyword) =>
+      text.includes(keyword),
+    );
+
+    // Check if message contains token-related keywords
+    const tokenKeywords = [
+      "btc",
+      "bitcoin",
+      "eth",
+      "ethereum",
+      "token",
+      "coin",
+      "crypto",
+    ];
+    const hasTokenKeyword = tokenKeywords.some((keyword) =>
+      text.includes(keyword),
+    );
+
+    return (
+      hasPriceKeyword ||
+      hasTokenKeyword ||
+      text.includes("get") ||
+      text.includes("check")
+    );
+  },
+
+  handler: async (
+    runtime: IAgentRuntime,
+    message: Memory,
+    state: State | undefined,
+    options: any,
+    callback?: HandlerCallback,
+  ) => {
+    try {
+      console.log("Processing token price request...");
+
+      const dataService = new DataService(runtime);
+      const userMessage = message.content.text || "";
+
+      // Extract token from user message using AI-like logic
+      const extractedToken = extractTokenFromMessage(userMessage);
+
+      if (!extractedToken) {
+        if (callback) {
+          callback({
+            text: "I couldn't identify which token you're asking about. Please specify a token like 'BTC price' or 'get ETH price'.",
+            action: "GET_TOKEN_PRICE",
+          });
+        }
+        return true;
+      }
+
+      // Get token price data
+      const tokenData = await dataService.getTokenPrice(extractedToken);
+      const marketData = await dataService.getMarketData();
+
+      if (tokenData.price === 0) {
+        if (callback) {
+          callback({
+            text: `Sorry, I couldn't find price data for "${extractedToken}". Please check the token symbol and try again.`,
+            action: "GET_TOKEN_PRICE",
+          });
+        }
+        return true;
+      }
+
+      const changeEmoji = tokenData.change24h > 0 ? "📈" : "📉";
+      const changeColor = tokenData.change24h > 0 ? "+" : "";
+
+      // Determine market sentiment
+      const volatility = Math.abs(tokenData.change24h);
+      const volatilityLevel =
+        volatility > 10
+          ? "Very High"
+          : volatility > 5
+            ? "High"
+            : volatility > 2
+              ? "Medium"
+              : "Low";
+
+      const response = `**${tokenData.name} (${tokenData.symbol}) Price Analysis** ${changeEmoji}
+
+**Current Price:** $${tokenData.price.toLocaleString()}
+**24h Change:** ${changeColor}${tokenData.change24h.toFixed(2)}%
+**24h Volume:** $${(tokenData.volume24h / 1e9).toFixed(1)}B
+**Market Cap:** $${(tokenData.marketCap / 1e9).toFixed(1)}B
+
+**Market Context:**
+• Total Crypto Market Cap: $${(marketData.totalMarketCap / 1e12).toFixed(1)}T
+• Market Volatility: ${volatilityLevel}
+
+**AI Insights:**
+• ${tokenData.change24h > 10 ? "Extremely bullish momentum - significant gains" : tokenData.change24h > 5 ? "Strong bullish momentum - consider taking profits" : tokenData.change24h > 2 ? "Positive price action - good for portfolio growth" : tokenData.change24h < -10 ? "Major decline - potential buying opportunity or risk" : tokenData.change24h < -5 ? "Significant decline - potential buying opportunity" : tokenData.change24h < -2 ? "Minor correction - monitor for further movement" : "Price stability - good for trading operations"}
+• ${volatility > 10 ? "Extreme volatility - high risk/reward scenario" : volatility > 5 ? "High volatility - be cautious with large positions" : "Moderate volatility - suitable for most trading strategies"}
+• ${tokenData.symbol === "BTC" ? "Bitcoin often leads market trends - watch for broader impact" : tokenData.symbol === "ETH" ? "Ethereum movements affect DeFi ecosystem significantly" : "Monitor correlation with major cryptocurrencies"}
+
+**Last Updated:** ${new Date(tokenData.lastUpdated).toLocaleTimeString()}`;
+
+      if (callback) {
+        callback({
+          text: response,
+          action: "GET_TOKEN_PRICE",
+        });
+      }
+
+      return true;
+    } catch (error) {
+      console.error("Token price fetch failed:", error);
+
+      if (callback) {
+        callback({
+          text: "Sorry, I couldn't fetch the token price data. Please try again.",
+          action: "GET_TOKEN_PRICE",
+        });
+      }
+
+      return false;
+    }
+  },
+
+  examples: [
+    [
+      { user: "user", content: { text: "What's the BTC price?" } },
+      {
+        user: "assistant",
+        content: {
+          text: "Fetching current Bitcoin price data and market analysis...",
+          action: "GET_TOKEN_PRICE",
+        },
+      },
+    ],
+    [
+      { user: "user", content: { text: "Get me the price of Solana" } },
+      {
+        user: "assistant",
+        content: {
+          text: "Looking up Solana price and market metrics...",
+          action: "GET_TOKEN_PRICE",
+        },
+      },
+    ],
+  ],
+};
+
+// AI-like function to extract token from natural language
+function extractTokenFromMessage(message: string): string | null {
+  const text = message.toLowerCase();
+
+  // Common token patterns
+  const tokenPatterns = [
+    // Direct mentions
+    /\b(bitcoin|btc)\b/,
+    /\b(ethereum|eth)\b/,
+    /\b(solana|sol)\b/,
+    /\b(cardano|ada)\b/,
+    /\b(polkadot|dot)\b/,
+    /\b(chainlink|link)\b/,
+    /\b(uniswap|uni)\b/,
+    /\b(avalanche|avax)\b/,
+    /\b(polygon|matic)\b/,
+    /\b(dogecoin|doge)\b/,
+    /\b(litecoin|ltc)\b/,
+    /\b(ripple|xrp)\b/,
+    /\b(cosmos|atom)\b/,
+    /\b(near)\b/,
+    /\b(algorand|algo)\b/,
+    /\b(stellar|xlm)\b/,
+    /\b(vechain|vet)\b/,
+    /\b(filecoin|fil)\b/,
+    /\b(tron|trx)\b/,
+    /\b(optimism|op)\b/,
+    /\b(arbitrum|arb)\b/,
+    /\b(aave)\b/,
+    /\b(maker|mkr)\b/,
+    /\b(compound|comp)\b/,
+    /\b(curve|crv)\b/,
+    /\b(synthetix|snx)\b/,
+    /\b(sushi|sushiswap)\b/,
+    /\b(yearn|yfi)\b/,
+    /\b(1inch)\b/,
+    /\b(lido|ldo)\b/,
+    /\b(aptos|apt)\b/,
+    /\b(usdc)\b/,
+    /\b(usdt|tether)\b/,
+    /\b(bnb|binance)\b/,
+  ];
+
+  // Try to match patterns
+  for (const pattern of tokenPatterns) {
+    const match = text.match(pattern);
+    if (match) {
+      return match[1] || match[0];
+    }
+  }
+
+  // Look for "price of X" or "X price" patterns
+  const priceOfMatch = text.match(/(?:price of|get|check)\s+([a-zA-Z0-9]+)/);
+  if (priceOfMatch) {
+    return priceOfMatch[1];
+  }
+
+  const tokenPriceMatch = text.match(/([a-zA-Z0-9]+)\s+(?:price|cost|value)/);
+  if (tokenPriceMatch) {
+    return tokenPriceMatch[1];
+  }
+
+  return null;
+}

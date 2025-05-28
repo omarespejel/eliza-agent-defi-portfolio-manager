@@ -16,7 +16,9 @@ export class CLIInterface {
     console.log("DeFi Portfolio Manager CLI started!");
     console.log("Available commands:");
     console.log("  - check portfolio");
-    console.log("  - get eth price");
+    console.log(
+      "  - get [token] price (e.g., 'get btc price', 'solana price')",
+    );
     console.log("  - analyze risk");
     console.log("  - optimize portfolio");
     console.log("  - help");
@@ -73,11 +75,24 @@ export class CLIInterface {
       agentId: this.runtime.agentId,
     };
 
-    // Route to appropriate action
+    // Route to appropriate action with intelligent context understanding
     if (lowerInput.includes("portfolio") || lowerInput.includes("balance")) {
       await this.callAction("CHECK_PORTFOLIO", mockMessage);
-    } else if (lowerInput.includes("eth") && lowerInput.includes("price")) {
-      await this.callAction("GET_ETH_PRICE", mockMessage);
+    } else if (
+      lowerInput.includes("price") ||
+      lowerInput.includes("cost") ||
+      lowerInput.includes("worth") ||
+      lowerInput.includes("value") ||
+      lowerInput.includes("how much") ||
+      lowerInput.includes("btc") ||
+      lowerInput.includes("bitcoin") ||
+      lowerInput.includes("eth") ||
+      lowerInput.includes("ethereum") ||
+      lowerInput.includes("token") ||
+      lowerInput.includes("coin")
+    ) {
+      // Use the intelligent token price action that can handle any token
+      await this.callAction("GET_TOKEN_PRICE", mockMessage);
     } else if (lowerInput.includes("risk") || lowerInput.includes("analyze")) {
       await this.callAction("ANALYZE_RISK", mockMessage);
     } else if (
@@ -96,7 +111,9 @@ export class CLIInterface {
         `I understand you said "${input}". As a DeFi Portfolio Manager, I can help you with:`,
       );
       console.log("  • Portfolio analysis and balance checking");
-      console.log("  • Market data and price information");
+      console.log(
+        "  • Market data and price information for any cryptocurrency",
+      );
       console.log("  • Risk assessment and recommendations");
       console.log("  • Portfolio optimization and rebalancing");
       console.log("  • DeFi position monitoring");
@@ -145,7 +162,7 @@ export class CLIInterface {
       "  check portfolio     - Analyze your DeFi portfolio with real data",
     );
     console.log(
-      "  get eth price      - Get current ETH price and market analysis",
+      "  get [token] price   - Get price for any cryptocurrency (BTC, ETH, SOL, etc.)",
     );
     console.log(
       "  analyze risk       - Assess portfolio risk with AI insights",
@@ -156,6 +173,12 @@ export class CLIInterface {
     console.log("  show positions     - Display DeFi positions");
     console.log("  help              - Show this help message");
     console.log("  exit/quit         - Exit the CLI");
+    console.log("");
+    console.log("Examples:");
+    console.log("  • 'btc price' or 'get bitcoin price'");
+    console.log("  • 'what's the solana price?'");
+    console.log("  • 'how much is ethereum worth?'");
+    console.log("  • 'price of cardano'");
     console.log("");
   }
 }
