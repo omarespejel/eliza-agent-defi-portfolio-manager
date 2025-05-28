@@ -148,10 +148,16 @@ class EnvironmentManager {
       return genericValue;
     }
 
+    // Private key is optional for read-only operations (portfolio analysis, price checking)
+    // Only required if you plan to execute transactions
     if (network === NetworkType.MAINNET) {
-      throw new Error(
-        `Private key required for mainnet: ${networkSpecificKey} or ${baseKey}`,
+      console.warn(
+        `⚠️  No private key found for mainnet (${networkSpecificKey} or ${baseKey})`,
       );
+      console.warn(
+        "   This is OK for read-only operations (portfolio analysis, price checking)",
+      );
+      console.warn("   Private key only required for executing transactions");
     }
 
     return undefined;
@@ -267,8 +273,14 @@ class EnvironmentManager {
       console.log("Emergency stop enabled");
     }
 
+    // Private key validation removed - not required for read-only operations
+    // Only needed if executing transactions
     if (network === NetworkType.MAINNET && !this.config.ethereumPrivateKey) {
-      throw new Error("Ethereum private key required for mainnet operations");
+      console.log("ℹ️  Running in read-only mode (no private key configured)");
+      console.log("   Perfect for portfolio analysis and price checking");
+      console.log(
+        "   Add ETHEREUM_PRIVATE_KEY_MAINNET if you need transaction capabilities",
+      );
     }
 
     if (this.config.whitelistMode && this.config.allowedAddresses) {

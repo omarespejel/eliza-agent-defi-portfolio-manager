@@ -68,15 +68,20 @@ class DefiPortfolioAgent {
     const config = environmentManager.getConfig();
 
     if (!config.ethereumPrivateKey) {
-      throw new Error(
-        "Ethereum mainnet private key required for mainnet operations",
+      console.log("🔒 MAINNET READ-ONLY MODE");
+      console.log("   ✅ Portfolio analysis and price checking enabled");
+      console.log("   ❌ Transaction execution disabled (no private key)");
+      console.log(
+        "   ℹ️  Add ETHEREUM_PRIVATE_KEY_MAINNET to enable transactions",
       );
+      return;
     }
 
+    console.log("🔑 MAINNET TRANSACTION MODE");
     console.log(`Transaction limit: ${config.maxTransactionValue} ETH`);
     console.log(`Confirmation required: ${config.requireConfirmation}`);
 
-    console.log("MAINNET WARNING: Real funds at risk!");
+    console.log("⚠️  MAINNET WARNING: Real funds at risk!");
     console.log("Double-check all transactions before execution");
     console.log("Monitor your accounts for unauthorized activity");
   }
