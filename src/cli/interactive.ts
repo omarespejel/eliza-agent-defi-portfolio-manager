@@ -47,7 +47,6 @@ export class CLIInterface {
 
       try {
         console.log("Processing...");
-
         await this.handleCommand(trimmedInput);
       } catch (error) {
         console.error("Error processing command:", error);
@@ -66,45 +65,26 @@ export class CLIInterface {
   private async handleCommand(input: string) {
     const lowerInput = input.toLowerCase();
 
+    // Create a mock message object for the actions
+    const mockMessage = {
+      userId: "cli-user",
+      content: { text: input },
+      roomId: "cli-room",
+      agentId: this.runtime.agentId,
+    };
+
+    // Route to appropriate action
     if (lowerInput.includes("portfolio") || lowerInput.includes("balance")) {
-      console.log("Analyzing your DeFi portfolio with real-time data...");
-      console.log("Portfolio Summary:");
-      console.log("  • ETH Balance: 2.5 ETH (~$6,000)");
-      console.log("  • USDC: 1,500 USDC");
-      console.log("  • Uniswap LP: $2,000 (ETH/USDC)");
-      console.log("  • Total Value: ~$9,500");
-      console.log("  • Risk Score: Medium (6/10)");
+      await this.callAction("CHECK_PORTFOLIO", mockMessage);
     } else if (lowerInput.includes("eth") && lowerInput.includes("price")) {
-      console.log("Fetching current ETH price with market analysis...");
-      console.log("ETH Price: $2,400 USD");
-      console.log("24h Change: +2.5%");
-      console.log("Market Volatility: Medium");
-      console.log(
-        "AI Insight: Positive price action - good for portfolio growth",
-      );
+      await this.callAction("GET_ETH_PRICE", mockMessage);
     } else if (lowerInput.includes("risk") || lowerInput.includes("analyze")) {
-      console.log("Analyzing portfolio risk with AI insights...");
-      console.log("Risk Analysis:");
-      console.log("  • Concentration Risk: Medium (60% ETH exposure)");
-      console.log("  • Liquidity Risk: Low (80% liquid assets)");
-      console.log("  • Smart Contract Risk: Medium (DeFi protocols)");
-      console.log("  • Market Risk: Medium (2.5% daily volatility)");
-      console.log(
-        "  • AI Recommendation: ETH concentration within acceptable range",
-      );
+      await this.callAction("ANALYZE_RISK", mockMessage);
     } else if (
       lowerInput.includes("optimize") ||
       lowerInput.includes("rebalance")
     ) {
-      console.log("Optimizing portfolio allocation with AI analysis...");
-      console.log("Optimization Analysis:");
-      console.log("  • Current ETH: 63.2% (Target: 50%)");
-      console.log("  • Current Stablecoins: 15.8% (Target: 30%)");
-      console.log("  • Current DeFi: 21.1% (Target: 20%)");
-      console.log(
-        "  • Recommendation: Reduce ETH by 13.2%, increase stablecoins",
-      );
-      console.log("  • Expected risk reduction: 1-2 points");
+      await this.callAction("OPTIMIZE_PORTFOLIO", mockMessage);
     } else if (lowerInput.includes("position")) {
       console.log("Displaying DeFi positions...");
       console.log("Active Positions:");
@@ -121,6 +101,41 @@ export class CLIInterface {
       console.log("  • Portfolio optimization and rebalancing");
       console.log("  • DeFi position monitoring");
       console.log("Type 'help' for available commands.");
+    }
+  }
+
+  private async callAction(actionName: string, message: any) {
+    try {
+      // Find the action in the runtime
+      const action = this.runtime.actions.find((a) => a.name === actionName);
+
+      if (!action) {
+        console.log(`Action ${actionName} not found`);
+        return;
+      }
+
+      // Validate the action
+      const isValid = await action.validate(this.runtime, message);
+      if (!isValid) {
+        console.log(`Action ${actionName} validation failed`);
+        return;
+      }
+
+      // Call the action handler
+      await action.handler(
+        this.runtime,
+        message,
+        undefined, // state
+        {}, // options
+        async (response) => {
+          // Callback to display the response
+          console.log(response.text);
+          return [];
+        },
+      );
+    } catch (error) {
+      console.error(`Error calling action ${actionName}:`, error);
+      console.log("Sorry, I encountered an error processing your request.");
     }
   }
 
