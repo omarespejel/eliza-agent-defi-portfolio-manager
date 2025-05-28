@@ -1,5 +1,4 @@
 export enum NetworkType {
-  DEVNET = "devnet",
   TESTNET = "testnet",
   MAINNET = "mainnet",
 }
@@ -25,28 +24,10 @@ export interface NetworkConfig {
 
 // Ethereum Network Configurations
 export const ETHEREUM_NETWORKS: Record<NetworkType, NetworkConfig> = {
-  [NetworkType.DEVNET]: {
-    name: "Ethereum Local Devnet",
-    type: NetworkType.DEVNET,
-    chainId: 1337, // Local development chain ID
-    rpcUrl: "http://localhost:8545",
-    explorerUrl: "http://localhost:8545", // Local explorer if available
-    nativeCurrency: {
-      name: "Ether",
-      symbol: "ETH",
-      decimals: 18,
-    },
-    isTestnet: true,
-    gasPrice: {
-      slow: "1000000000", // 1 gwei
-      standard: "2000000000", // 2 gwei
-      fast: "5000000000", // 5 gwei
-    },
-  },
   [NetworkType.TESTNET]: {
     name: "Ethereum Sepolia Testnet",
     type: NetworkType.TESTNET,
-    chainId: 11155111, // Sepolia chain ID
+    chainId: 11155111,
     rpcUrl: "https://ethereum-sepolia-rpc.publicnode.com",
     explorerUrl: "https://sepolia.etherscan.io",
     nativeCurrency: {
@@ -56,15 +37,15 @@ export const ETHEREUM_NETWORKS: Record<NetworkType, NetworkConfig> = {
     },
     isTestnet: true,
     gasPrice: {
-      slow: "1000000000", // 1 gwei
-      standard: "2000000000", // 2 gwei
-      fast: "5000000000", // 5 gwei
+      slow: "1000000000",
+      standard: "2000000000",
+      fast: "5000000000",
     },
   },
   [NetworkType.MAINNET]: {
     name: "Ethereum Mainnet",
     type: NetworkType.MAINNET,
-    chainId: 1, // Ethereum mainnet chain ID
+    chainId: 1,
     rpcUrl: "https://mainnet.infura.io/v3/",
     explorerUrl: "https://etherscan.io",
     nativeCurrency: {
@@ -74,9 +55,9 @@ export const ETHEREUM_NETWORKS: Record<NetworkType, NetworkConfig> = {
     },
     isTestnet: false,
     gasPrice: {
-      slow: "10000000000", // 10 gwei
-      standard: "20000000000", // 20 gwei
-      fast: "50000000000", // 50 gwei
+      slow: "10000000000",
+      standard: "20000000000",
+      fast: "50000000000",
     },
   },
 };
@@ -124,7 +105,5 @@ export function isMainnet(networkType: NetworkType): boolean {
 }
 
 export function isTestnet(networkType: NetworkType): boolean {
-  return (
-    networkType === NetworkType.TESTNET || networkType === NetworkType.DEVNET
-  );
+  return networkType === NetworkType.TESTNET;
 }

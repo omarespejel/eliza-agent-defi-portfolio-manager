@@ -18,7 +18,6 @@ export const checkPortfolioAction: Action = {
   description: "Check current DeFi portfolio balance and allocations",
 
   validate: async (runtime: IAgentRuntime, message: Memory) => {
-    // Basic validation - check if message contains portfolio-related keywords
     const text = message.content.text?.toLowerCase() || "";
     return (
       text.includes("portfolio") ||
@@ -35,9 +34,8 @@ export const checkPortfolioAction: Action = {
     callback?: HandlerCallback,
   ) => {
     try {
-      console.log("🔍 Checking portfolio...");
+      console.log("Checking portfolio...");
 
-      // Mock portfolio data - in real implementation, this would fetch from blockchain
       const portfolioData = {
         totalValue: 9500,
         ethBalance: 2.5,
@@ -54,18 +52,18 @@ export const checkPortfolioAction: Action = {
         riskScore: 6,
       };
 
-      const response = `📊 **Portfolio Analysis Complete**
+      const response = `**Portfolio Analysis Complete**
 
-💰 **Total Portfolio Value:** $${portfolioData.totalValue.toLocaleString()}
+**Total Portfolio Value:** $${portfolioData.totalValue.toLocaleString()}
 
-🪙 **Holdings:**
+**Holdings:**
 • ETH: ${portfolioData.ethBalance} ETH (~$${portfolioData.ethValue.toLocaleString()})
 • USDC: ${portfolioData.usdcBalance.toLocaleString()} USDC
 • Uniswap LP: $${portfolioData.lpPositions[0].value.toLocaleString()} (${portfolioData.lpPositions[0].pair})
 
-⚖️ **Risk Assessment:** ${portfolioData.riskScore}/10 (Medium)
+**Risk Assessment:** ${portfolioData.riskScore}/10 (Medium)
 
-📈 **Recommendations:**
+**Recommendations:**
 • Consider rebalancing if ETH allocation exceeds 70%
 • Monitor gas fees for optimal transaction timing
 • Diversify into additional stablecoins for risk management`;
@@ -83,7 +81,7 @@ export const checkPortfolioAction: Action = {
 
       if (callback) {
         callback({
-          text: "❌ Sorry, I encountered an error while checking your portfolio. Please try again.",
+          text: "Sorry, I encountered an error while checking your portfolio. Please try again.",
           action: "CHECK_PORTFOLIO",
         });
       }
@@ -98,17 +96,7 @@ export const checkPortfolioAction: Action = {
       {
         user: "assistant",
         content: {
-          text: "📊 Analyzing your DeFi portfolio...",
-          action: "CHECK_PORTFOLIO",
-        },
-      },
-    ],
-    [
-      { user: "user", content: { text: "What's my balance?" } },
-      {
-        user: "assistant",
-        content: {
-          text: "Let me check your current holdings across all protocols.",
+          text: "Analyzing your current holdings across all chains...",
           action: "CHECK_PORTFOLIO",
         },
       },
@@ -137,9 +125,8 @@ export const getEthPriceAction: Action = {
     callback?: HandlerCallback,
   ) => {
     try {
-      console.log("📈 Fetching ETH price...");
+      console.log("Fetching ETH price...");
 
-      // Mock price data - in real implementation, this would fetch from CoinGecko or similar
       const priceData = {
         price: 2400,
         change24h: 2.5,
@@ -150,14 +137,14 @@ export const getEthPriceAction: Action = {
       const changeEmoji = priceData.change24h > 0 ? "📈" : "📉";
       const changeColor = priceData.change24h > 0 ? "+" : "";
 
-      const response = `💰 **Ethereum (ETH) Price**
+      const response = `**Ethereum (ETH) Price**
 
-🏷️ **Current Price:** $${priceData.price.toLocaleString()}
-${changeEmoji} **24h Change:** ${changeColor}${priceData.change24h}%
-📊 **24h Volume:** $${(priceData.volume24h / 1000000000).toFixed(1)}B
-🏦 **Market Cap:** $${(priceData.marketCap / 1000000000).toFixed(0)}B
+**Current Price:** $${priceData.price.toLocaleString()}
+**24h Change:** ${changeColor}${priceData.change24h}%
+**24h Volume:** $${(priceData.volume24h / 1000000000).toFixed(1)}B
+**Market Cap:** $${(priceData.marketCap / 1000000000).toFixed(0)}B
 
-⏰ **Last Updated:** ${new Date().toLocaleTimeString()}`;
+**Last Updated:** ${new Date().toLocaleTimeString()}`;
 
       if (callback) {
         callback({
@@ -172,7 +159,7 @@ ${changeEmoji} **24h Change:** ${changeColor}${priceData.change24h}%
 
       if (callback) {
         callback({
-          text: "❌ Sorry, I couldn't fetch the current ETH price. Please try again.",
+          text: "Sorry, I couldn't fetch the current ETH price. Please try again.",
           action: "GET_ETH_PRICE",
         });
       }
@@ -187,7 +174,7 @@ ${changeEmoji} **24h Change:** ${changeColor}${priceData.change24h}%
       {
         user: "assistant",
         content: {
-          text: "💰 Fetching current Ethereum price...",
+          text: "Fetching current Ethereum price data...",
           action: "GET_ETH_PRICE",
         },
       },
@@ -213,9 +200,8 @@ export const analyzeRiskAction: Action = {
     callback?: HandlerCallback,
   ) => {
     try {
-      console.log("⚠️ Analyzing portfolio risk...");
+      console.log("Analyzing portfolio risk...");
 
-      // Mock risk analysis - in real implementation, this would analyze actual positions
       const riskAnalysis = {
         overallRisk: 6,
         concentrationRisk: "Medium",
@@ -228,19 +214,19 @@ export const analyzeRiskAction: Action = {
         ],
       };
 
-      const response = `⚠️ **Portfolio Risk Analysis**
+      const response = `**Portfolio Risk Analysis**
 
-🎯 **Overall Risk Score:** ${riskAnalysis.overallRisk}/10 (Medium)
+**Overall Risk Score:** ${riskAnalysis.overallRisk}/10 (Medium)
 
-📊 **Risk Breakdown:**
+**Risk Breakdown:**
 • **Concentration Risk:** ${riskAnalysis.concentrationRisk} (60% ETH exposure)
 • **Liquidity Risk:** ${riskAnalysis.liquidityRisk} (80% liquid assets)
 • **Smart Contract Risk:** ${riskAnalysis.smartContractRisk} (DeFi protocols)
 
-💡 **Recommendations:**
+**Recommendations:**
 ${riskAnalysis.recommendations.map((rec) => `• ${rec}`).join("\n")}
 
-🔔 **Risk Monitoring:**
+**Risk Monitoring:**
 • Set up alerts for 20%+ price movements
 • Review portfolio allocation weekly
 • Monitor protocol health scores`;
@@ -258,7 +244,7 @@ ${riskAnalysis.recommendations.map((rec) => `• ${rec}`).join("\n")}
 
       if (callback) {
         callback({
-          text: "❌ Sorry, I couldn't complete the risk analysis. Please try again.",
+          text: "Sorry, I couldn't complete the risk analysis. Please try again.",
           action: "ANALYZE_RISK",
         });
       }
@@ -273,7 +259,7 @@ ${riskAnalysis.recommendations.map((rec) => `• ${rec}`).join("\n")}
       {
         user: "assistant",
         content: {
-          text: "⚠️ Analyzing your portfolio risk profile...",
+          text: "Analyzing your portfolio risk profile...",
           action: "ANALYZE_RISK",
         },
       },

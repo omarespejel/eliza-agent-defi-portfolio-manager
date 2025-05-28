@@ -1,8 +1,7 @@
 #!/usr/bin/env node
 
-// Simple test script to verify CLI functionality
-console.log("🧪 Testing DeFi Agent CLI Commands");
-console.log("==================================");
+console.log("DeFi Portfolio Agent - CLI Test Helper");
+console.log("=====================================");
 
 const testCommands = [
   "check portfolio",
@@ -11,19 +10,22 @@ const testCommands = [
   "show positions",
 ];
 
-console.log("📝 Available test commands:");
+console.log("Available test commands:");
 testCommands.forEach((cmd, i) => {
   console.log(`  ${i + 1}. ${cmd}`);
 });
 
-console.log("\n💡 To test the agent:");
-console.log("1. Run: bun run dev");
-console.log("2. Try typing any of the commands above");
+console.log("\nTo test the agent:");
+console.log("1. Run 'bun run dev' in another terminal");
+console.log("2. Try the commands above in the CLI");
 console.log("3. Type 'help' for more options");
-console.log("4. Type 'exit' to quit");
 
-console.log("\n🎯 Expected behavior:");
-console.log("- Portfolio commands should show mock portfolio data");
-console.log("- Price commands should show ETH price information");
+console.log("\nExpected behavior:");
+console.log("- Portfolio commands should show mock data");
+console.log("- Price commands should show current ETH price");
 console.log("- Risk commands should show risk analysis");
-console.log("- The agent should respond with formatted output");
+console.log("- All responses should be formatted and helpful");
+
+console.log(
+  "\nNote: This is a test helper. The actual CLI runs with 'bun run dev'",
+);

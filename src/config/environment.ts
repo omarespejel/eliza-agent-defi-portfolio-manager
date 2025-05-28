@@ -1,37 +1,29 @@
 import { NetworkType, getNetworkConfig } from "./networks.js";
 
 export interface EnvironmentConfig {
-  // Network Configuration
   network: NetworkType;
 
-  // API Keys (not sensitive)
   openaiApiKey: string;
   infuraProjectId?: string;
   alchemyApiKey?: string;
 
-  // Discord Configuration
   discordApiToken?: string;
   discordApplicationId?: string;
 
-  // Private Keys (sensitive - handled securely)
   ethereumPrivateKey?: string;
 
-  // RPC URLs (can contain API keys)
   ethereumRpcUrl?: string;
 
-  // Basic Security Settings
   enableMainnetProtection: boolean;
   maxTransactionValue?: string; // in ETH
   requireConfirmation: boolean;
 
-  // Enhanced Security Settings
   dailyTransactionLimit?: string; // in ETH
   maxGasPrice?: string; // in wei
   enableTransactionLogging: boolean;
   whitelistMode: boolean;
   allowedAddresses?: string[]; // comma-separated addresses
 
-  // Advanced Security Settings
   enableAnomalyDetection: boolean;
   alertOnLargeTransactions: boolean;
   alertThresholdEth?: string;
@@ -59,15 +51,12 @@ class EnvironmentManager {
   }
 
   private loadConfiguration(): EnvironmentConfig {
-    // Determine network from environment
     const networkEnv = process.env.NETWORK?.toLowerCase() as NetworkType;
     const network = this.validateNetwork(networkEnv);
 
     return {
-      // Network
       network,
 
-      // API Keys
       openaiApiKey: this.getRequiredEnv("OPENAI_API_KEY"),
       infuraProjectId: process.env.INFURA_PROJECT_ID,
       alchemyApiKey: process.env.ALCHEMY_API_KEY,
@@ -76,20 +65,16 @@ class EnvironmentManager {
       discordApiToken: process.env.DISCORD_API_TOKEN,
       discordApplicationId: process.env.DISCORD_APPLICATION_ID,
 
-      // Private Keys - Network specific
       ethereumPrivateKey: this.getPrivateKey("ETHEREUM_PRIVATE_KEY", network),
 
-      // RPC URLs - Network specific with fallbacks
       ethereumRpcUrl: this.getRpcUrl("ETHEREUM_RPC_URL", network),
 
-      // Security Settings
       enableMainnetProtection: network === NetworkType.MAINNET,
       maxTransactionValue: process.env.MAX_TRANSACTION_VALUE || "1.0",
       requireConfirmation:
         network === NetworkType.MAINNET ||
         process.env.REQUIRE_CONFIRMATION === "true",
 
-      // Enhanced Security Settings
       dailyTransactionLimit: process.env.DAILY_TRANSACTION_LIMIT,
       maxGasPrice: process.env.MAX_GAS_PRICE,
       enableTransactionLogging:
@@ -97,7 +82,6 @@ class EnvironmentManager {
       whitelistMode: process.env.WHITELIST_MODE === "true",
       allowedAddresses: process.env.ALLOWED_ADDRESSES?.split(","),
 
-      // Advanced Security Settings
       enableAnomalyDetection: process.env.ENABLE_ANOMALY_DETECTION === "true",
       alertOnLargeTransactions:
         process.env.ALERT_ON_LARGE_TRANSACTIONS === "true",
@@ -115,9 +99,7 @@ class EnvironmentManager {
 
   private validateNetwork(network: string | undefined): NetworkType {
     if (!network) {
-      console.warn(
-        "⚠️  NETWORK not specified, defaulting to TESTNET (recommended for ElizaOS AI agents)",
-      );
+      console.warn("NETWORK not specified, defaulting to TESTNET");
       return NetworkType.TESTNET;
     }
 
@@ -142,7 +124,6 @@ class EnvironmentManager {
     baseKey: string,
     network: NetworkType,
   ): string | undefined {
-    // Try network-specific key first (e.g., STARKNET_PRIVATE_KEY_MAINNET)
     const networkSpecificKey = `${baseKey}_${network.toUpperCase()}`;
     const networkSpecificValue = process.env[networkSpecificKey];
 
@@ -155,14 +136,12 @@ class EnvironmentManager {
       return networkSpecificValue;
     }
 
-    // Fall back to generic key
     const genericValue = process.env[baseKey];
     if (genericValue) {
       this.validatePrivateKey(genericValue, baseKey, network);
       return genericValue;
     }
 
-    // Only require private keys for mainnet
     if (network === NetworkType.MAINNET) {
       throw new Error(
         `Private key required for mainnet: ${networkSpecificKey} or ${baseKey}`,
@@ -177,12 +156,10 @@ class EnvironmentManager {
     keyName: string,
     network: NetworkType,
   ): void {
-    // Basic validation
     if (privateKey.length < 32) {
       throw new Error(`Invalid private key format for ${keyName}`);
     }
 
-    // Mainnet additional security checks
     if (network === NetworkType.MAINNET) {
       if (privateKey.includes("test") || privateKey.includes("dev")) {
         throw new Error(
@@ -191,7 +168,6 @@ class EnvironmentManager {
       }
     }
 
-    // Warn about test keys on mainnet
     if (
       network === NetworkType.MAINNET &&
       (privateKey.startsWith("0x1234") ||
@@ -203,7 +179,6 @@ class EnvironmentManager {
   }
 
   private getRpcUrl(baseKey: string, network: NetworkType): string | undefined {
-    // Try network-specific RPC URL first
     const networkSpecificKey = `${baseKey}_${network.toUpperCase()}`;
     const networkSpecificUrl = process.env[networkSpecificKey];
 
@@ -211,19 +186,16 @@ class EnvironmentManager {
       return this.buildRpcUrl(networkSpecificUrl, network);
     }
 
-    // Fall back to generic RPC URL
     const genericUrl = process.env[baseKey];
     if (genericUrl) {
       return this.buildRpcUrl(genericUrl, network);
     }
 
-    // Use default from network config
     const networkConfig = getNetworkConfig(network);
     return this.buildRpcUrl(networkConfig.rpcUrl, network);
   }
 
   private buildRpcUrl(baseUrl: string, network: NetworkType): string {
-    // Add API key if needed and available
     if (baseUrl.includes("infura.io") && this.config?.infuraProjectId) {
       return baseUrl + this.config.infuraProjectId;
     }
@@ -239,66 +211,60 @@ class EnvironmentManager {
     const { network } = this.config;
     const networkConfig = getNetworkConfig(network);
 
-    console.log(`🌐 Network: ${networkConfig.name} (${network})`);
-    console.log(`🔗 Chain ID: ${networkConfig.chainId}`);
-    console.log(`🧪 Test Network: ${networkConfig.isTestnet ? "Yes" : "No"}`);
+    console.log(`Network: ${networkConfig.name} (${network})`);
+    console.log(`Chain ID: ${networkConfig.chainId}`);
+    console.log(`Test Network: ${networkConfig.isTestnet ? "Yes" : "No"}`);
 
-    // Basic security settings
     console.log(
-      `💰 Max transaction value: ${this.config.maxTransactionValue || "1.0"} ETH`,
+      `Max transaction value: ${this.config.maxTransactionValue || "1.0"} ETH`,
     );
-    console.log(`✅ Confirmation required: ${this.config.requireConfirmation}`);
+    console.log(`Confirmation required: ${this.config.requireConfirmation}`);
 
-    // Enhanced security settings
     if (this.config.dailyTransactionLimit) {
       console.log(
-        `📊 Daily transaction limit: ${this.config.dailyTransactionLimit} ETH`,
+        `Daily transaction limit: ${this.config.dailyTransactionLimit} ETH`,
       );
     }
     if (this.config.maxGasPrice) {
       console.log(
-        `⛽ Max gas price: ${parseInt(this.config.maxGasPrice) / 1e9} gwei`,
+        `Max gas price: ${parseInt(this.config.maxGasPrice) / 1e9} gwei`,
       );
     }
     console.log(
-      `📝 Transaction logging: ${this.config.enableTransactionLogging ? "Enabled" : "Disabled"}`,
+      `Transaction logging: ${this.config.enableTransactionLogging ? "Enabled" : "Disabled"}`,
     );
     console.log(
-      `🛡️ Whitelist mode: ${this.config.whitelistMode ? "Enabled" : "Disabled"}`,
+      `Whitelist mode: ${this.config.whitelistMode ? "Enabled" : "Disabled"}`,
     );
 
     if (network === NetworkType.MAINNET) {
-      console.log("🔒 Mainnet protection enabled");
+      console.log("Mainnet protection enabled");
 
-      // Additional mainnet validations
       if (
         this.config.whitelistMode &&
         (!this.config.allowedAddresses ||
           this.config.allowedAddresses.length === 0)
       ) {
         console.warn(
-          "⚠️  Whitelist mode enabled but no allowed addresses configured",
+          "Whitelist mode enabled but no allowed addresses configured",
         );
       }
 
       if (!this.config.enableTransactionLogging) {
         console.warn(
-          "⚠️  Transaction logging disabled on mainnet - not recommended",
+          "Transaction logging disabled on mainnet - not recommended",
         );
       }
     }
 
-    // Advanced security warnings
     if (this.config.emergencyStopEnabled) {
-      console.log("🚨 Emergency stop enabled");
+      console.log("Emergency stop enabled");
     }
 
-    // Validate required keys for the network
     if (network === NetworkType.MAINNET && !this.config.ethereumPrivateKey) {
       throw new Error("Ethereum private key required for mainnet operations");
     }
 
-    // Validate whitelist addresses if whitelist mode is enabled
     if (this.config.whitelistMode && this.config.allowedAddresses) {
       this.validateWhitelistAddresses(this.config.allowedAddresses);
     }
@@ -317,7 +283,6 @@ class EnvironmentManager {
     }
   }
 
-  // Public getters
   getConfig(): Readonly<EnvironmentConfig> {
     return { ...this.config };
   }
@@ -338,12 +303,10 @@ class EnvironmentManager {
     return this.config.network !== NetworkType.MAINNET;
   }
 
-  // Security helper methods
   isTransactionAllowed(
     toAddress: string,
     valueEth: number,
   ): { allowed: boolean; reason?: string } {
-    // Check whitelist mode
     if (this.config.whitelistMode) {
       if (
         !this.config.allowedAddresses ||
@@ -353,7 +316,6 @@ class EnvironmentManager {
       }
     }
 
-    // Check transaction value limit
     const maxValue = parseFloat(this.config.maxTransactionValue || "1.0");
     if (valueEth > maxValue) {
       return {
@@ -362,12 +324,11 @@ class EnvironmentManager {
       };
     }
 
-    // Check alert threshold
     if (this.config.alertOnLargeTransactions && this.config.alertThresholdEth) {
       const alertThreshold = parseFloat(this.config.alertThresholdEth);
       if (valueEth > alertThreshold) {
         console.warn(
-          `⚠️  Large transaction alert: ${valueEth} ETH exceeds threshold of ${alertThreshold} ETH`,
+          `Large transaction alert: ${valueEth} ETH exceeds threshold of ${alertThreshold} ETH`,
         );
       }
     }
@@ -397,7 +358,6 @@ class EnvironmentManager {
     }
   }
 
-  // Security helpers
   maskSensitiveValue(key: string, value: string): string {
     if (this.sensitiveKeys.has(key)) {
       if (value.length <= 8) return "***";
@@ -407,8 +367,8 @@ class EnvironmentManager {
   }
 
   logConfiguration(): void {
-    console.log("\n📋 Environment Configuration:");
-    console.log("================================");
+    console.log("\nEnvironment Configuration:");
+    console.log("==========================");
 
     Object.entries(this.config).forEach(([key, value]) => {
       if (value !== undefined && value !== null) {
@@ -420,10 +380,9 @@ class EnvironmentManager {
       }
     });
 
-    console.log("================================\n");
+    console.log("==========================\n");
   }
 }
 
-// Singleton instance
 export const environmentManager = new EnvironmentManager();
 export const getEnvironmentConfig = () => environmentManager.getConfig();

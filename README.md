@@ -33,15 +33,6 @@ Built with ElizaOS for natural language interaction and secure private key manag
    bun run start
    ```
 
-3. **Setup for devnet (Limited use - see Networks section):**
-
-   ```bash
-   bun run setup:devnet
-   # Edit .env with your API keys
-   bun run network-status
-   bun run dev
-   ```
-
 ## What It Does
 
 The agent connects to DeFi protocols like Uniswap, Aave, and Compound. It:
@@ -56,13 +47,13 @@ The agent connects to DeFi protocols like Uniswap, Aave, and Compound. It:
 
 **Recommended Network: Testnet (Sepolia)**
 
-For ElizaOS AI agent development, **testnet is strongly recommended** over devnet:
+For development, **testnet is strongly recommended**:
 
 ### Why Testnet is Preferred:
 
 - **Real network conditions**: Public network that closely mimics mainnet behavior
 - **Authentic blockchain environment**: Real miners and nodes provide realistic network conditions
-- **Persistent network**: Long block history and continuous operation (unlike session-based devnets)
+- **Persistent network**: Long block history and continuous operation
 - **Multi-user testing**: Other developers active on network for realistic conditions
 - **Final validation**: Perfect stepping stone before mainnet deployment
 
@@ -70,14 +61,6 @@ For ElizaOS AI agent development, **testnet is strongly recommended** over devne
 
 - **Testnet (Sepolia)**: **RECOMMENDED** - Real network conditions with test ETH
 - **Mainnet**: Production environment with real funds
-- **Devnet**: Limited use - Only for rapid prototyping and initial configuration testing
-
-### Devnet Limitations for AI Agents:
-
-- Isolated environment that doesn't reflect real-world conditions
-- Simulated network behavior may not match actual blockchain dynamics
-- Session-based networks that exist only during development
-- Missing the complexity of real network interactions that AI agents need to handle
 
 ```bash
 # Check your setup
@@ -86,7 +69,6 @@ bun run network-status
 # Configure for each environment
 bun run setup:testnet   # RECOMMENDED for development
 bun run setup:mainnet   # Production
-bun run setup:devnet    # Limited use only
 
 # Run the agent
 bun run dev    # Development mode
@@ -115,7 +97,7 @@ bun run network-status
 Set these in your `.env` file:
 
 ```bash
-NETWORK=testnet|mainnet|devnet
+NETWORK=testnet|mainnet
 OPENAI_API_KEY=your-openai-key
 
 # Recommended: Use Sepolia testnet for development
@@ -123,7 +105,6 @@ EVM_PROVIDER_URL=https://sepolia.infura.io/v3/your_project_id
 CHAIN_ID=11155111
 
 # Separate keys for each network
-ETHEREUM_PRIVATE_KEY_DEVNET=0x...   # Limited use
 ETHEREUM_PRIVATE_KEY_TESTNET=0x...  # RECOMMENDED for development
 ETHEREUM_PRIVATE_KEY_MAINNET=0x...  # Keep this secure
 ```
@@ -133,19 +114,50 @@ ETHEREUM_PRIVATE_KEY_MAINNET=0x...  # Keep this secure
 ```bash
 bun run dev              # Start development mode (use with testnet)
 bun run start            # Run in production (mainnet)
-bun run network-status   # Check configuration
-bun run test             # Run tests
+bun run setup:testnet    # Setup testnet environment
+bun run setup:mainnet    # Setup mainnet environment
+bun run network-status   # Check current network configuration
+bun run db:start         # Start PostgreSQL database
+bun run db:stop          # Stop PostgreSQL database
+```
+
+## Development Workflow
+
+1. Use testnet for all development and testing
+2. Deploy to mainnet only after thorough testnet validation
+
+## CLI Interface
+
+The agent includes an interactive CLI for testing:
+
+```bash
+bun run dev
+# Then use commands like:
+# - check portfolio
+# - get eth price
+# - analyze risk
+# - help
+```
+
+## Project Structure
+
+```
+src/
+├── actions/           # DeFi-specific actions
+├── characters/        # Agent personality
+├── cli/              # Interactive CLI
+├── config/           # Network and environment config
+├── plugins/          # Custom plugins
+└── utils/            # Utility functions
 ```
 
 ## Contributing
 
-**Development Workflow:**
-
-1. Start with testnet for all development and testing
-2. Use devnet only for rapid prototyping if needed
-3. Deploy to mainnet only after thorough testnet validation
-4. Never commit private keys
+1. Fork the repository
+2. Create a feature branch
+3. Test thoroughly on testnet
+4. Submit a pull request
 
 ## License
 
-MIT
+MIT License - see LICENSE file for details.

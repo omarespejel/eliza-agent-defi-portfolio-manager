@@ -46,23 +46,19 @@ export class NetworkSwitcher {
     const envConfig = environmentManager.getConfig();
 
     if (network === NetworkType.MAINNET) {
-      warnings.push("🚨 MAINNET: Real funds at risk!");
+      warnings.push("MAINNET: Real funds at risk");
 
       if (!envConfig.enableMainnetProtection) {
-        warnings.push("⚠️  Mainnet protection disabled - HIGH RISK!");
+        warnings.push("Mainnet protection disabled - HIGH RISK");
       }
 
       if (!envConfig.requireConfirmation) {
-        warnings.push("⚠️  Transaction confirmation disabled");
+        warnings.push("Transaction confirmation disabled");
       }
 
       if (!envConfig.ethereumPrivateKey) {
-        warnings.push("❌ No mainnet private key configured");
+        warnings.push("No mainnet private key configured");
       }
-    }
-
-    if (network === NetworkType.DEVNET) {
-      warnings.push("ℹ️  Using local devnet - ensure it's running");
     }
 
     return warnings;
@@ -71,46 +67,44 @@ export class NetworkSwitcher {
   static logNetworkStatus(): void {
     const status = this.getNetworkStatus();
 
-    console.log("\n🌐 Network Status:");
-    console.log("==================");
+    console.log("\nNetwork Status:");
+    console.log("===============");
     console.log(`Network: ${status.config.name} (${status.network})`);
     console.log(`Chain ID: ${status.config.chainId}`);
     console.log(`RPC URL: ${status.rpcUrl}`);
     console.log(`Explorer: ${status.explorerUrl}`);
     console.log(`Security Level: ${status.securityLevel}`);
     console.log(
-      `Private Key: ${status.hasPrivateKey ? "✅ Configured" : "❌ Missing"}`,
+      `Private Key: ${status.hasPrivateKey ? "Configured" : "Missing"}`,
     );
 
     if (status.warnings.length > 0) {
-      console.log("\n⚠️  Warnings:");
+      console.log("\nWarnings:");
       status.warnings.forEach((warning) => console.log(`  ${warning}`));
     }
 
-    console.log("==================\n");
+    console.log("===============\n");
   }
 
   static validateNetworkSetup(): boolean {
     const status = this.getNetworkStatus();
     const errors: string[] = [];
 
-    // Check for required private key on mainnet
     if (status.isMainnet && !status.hasPrivateKey) {
       errors.push("Mainnet private key required");
     }
 
-    // Check RPC URL
     if (!status.rpcUrl) {
       errors.push("RPC URL not configured");
     }
 
     if (errors.length > 0) {
-      console.error("❌ Network setup validation failed:");
+      console.error("Network setup validation failed:");
       errors.forEach((error) => console.error(`  - ${error}`));
       return false;
     }
 
-    console.log("✅ Network setup validation passed");
+    console.log("Network setup validation passed");
     return true;
   }
 
@@ -125,15 +119,10 @@ export class NetworkSwitcher {
         "2. Ensure you have ETHEREUM_PRIVATE_KEY_MAINNET configured",
       );
       instructions.push("3. Verify your mainnet RPC URL is correct");
-      instructions.push("4. ⚠️  WARNING: This will use real funds!");
+      instructions.push("4. WARNING: This will use real funds!");
     } else if (targetNetwork === NetworkType.TESTNET) {
       instructions.push("2. Configure ETHEREUM_PRIVATE_KEY_TESTNET (optional)");
       instructions.push("3. Ensure you have testnet ETH for gas fees");
-    } else {
-      instructions.push(
-        "2. Start your local Ethereum devnet (e.g., Hardhat, Ganache)",
-      );
-      instructions.push("3. Configure ETHEREUM_PRIVATE_KEY_DEVNET (optional)");
     }
 
     instructions.push("4. Restart the application");
@@ -142,7 +131,6 @@ export class NetworkSwitcher {
   }
 }
 
-// Convenience functions
 export const getCurrentNetwork = () => NetworkSwitcher.getCurrentNetwork();
 export const isMainnet = () => NetworkSwitcher.isMainnet();
 export const isTestnet = () => NetworkSwitcher.isTestnet();
