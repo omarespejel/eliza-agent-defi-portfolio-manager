@@ -75,12 +75,16 @@ ${portfolioData.balances
   .join("\n")}
 
 **DeFi Positions:**
-${portfolioData.defiPositions
-  .map(
-    (position) =>
-      `• ${position.protocol}: $${position.value.toLocaleString()} ${position.pair ? `(${position.pair})` : ""} ${position.apy ? `- ${position.apy}% APY` : ""}`,
-  )
-  .join("\n")}
+${
+  portfolioData.defiPositions.length > 0
+    ? portfolioData.defiPositions
+        .map(
+          (position) =>
+            `• ${position.protocol}: $${position.value.toLocaleString()} ${position.pair ? `(${position.pair})` : ""} ${position.apy ? `- ${position.apy}% APY` : ""}`,
+        )
+        .join("\n")
+    : "• No active DeFi positions detected"
+}
 
 **Risk Assessment:** ${portfolioData.riskScore}/10 ${portfolioData.riskScore <= 3 ? "(Low)" : portfolioData.riskScore <= 6 ? "(Medium)" : "(High)"}
 
@@ -468,18 +472,22 @@ ${Math.abs(stablecoinRebalance) > 5 ? `🔄 Stablecoins: ${stablecoinRebalance >
 ${Math.abs(defiRebalance) > 5 ? `🔄 DeFi: ${defiRebalance > 0 ? "REDUCE" : "INCREASE"} by ${Math.abs(defiRebalance).toFixed(1)}% (~$${Math.abs((defiRebalance * totalValue) / 100).toLocaleString()})` : "✅ DeFi allocation optimal"}
 
 **Yield Optimization Opportunities:**
-${portfolioData.defiPositions
-  .map((pos) => {
-    const currentAPY = pos.apy || 0;
-    const suggestion =
-      currentAPY < 5
-        ? "Consider higher-yield alternatives"
-        : currentAPY < 10
-          ? "Decent yield, monitor for better opportunities"
-          : "Excellent yield, maintain position";
-    return `• ${pos.protocol}: ${currentAPY}% APY - ${suggestion}`;
-  })
-  .join("\n")}
+${
+  portfolioData.defiPositions.length > 0
+    ? portfolioData.defiPositions
+        .map((pos) => {
+          const currentAPY = pos.apy || 0;
+          const suggestion =
+            currentAPY < 5
+              ? "Consider higher-yield alternatives"
+              : currentAPY < 10
+                ? "Decent yield, monitor for better opportunities"
+                : "Excellent yield, maintain position";
+          return `• ${pos.protocol}: ${currentAPY}% APY - ${suggestion}`;
+        })
+        .join("\n")
+    : "• No current DeFi positions - consider adding yield-generating positions"
+}
 
 **Market Timing Considerations:**
 • ETH Price Trend: ${ethPrice.change24h > 0 ? "Bullish" : "Bearish"} (${ethPrice.change24h > 0 ? "+" : ""}${ethPrice.change24h.toFixed(2)}%)
