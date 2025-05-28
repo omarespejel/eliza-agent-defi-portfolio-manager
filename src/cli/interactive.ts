@@ -75,8 +75,15 @@ export class CLIInterface {
       agentId: this.runtime.agentId,
     };
 
+    console.log(`🔍 Analyzing input: "${input}"`);
+
     // Route to appropriate action with intelligent context understanding
-    if (lowerInput.includes("portfolio") || lowerInput.includes("balance")) {
+    if (
+      lowerInput.includes("portfolio") ||
+      lowerInput.includes("balance") ||
+      lowerInput.includes("holdings")
+    ) {
+      console.log("📊 Routing to CHECK_PORTFOLIO action");
       await this.callAction("CHECK_PORTFOLIO", mockMessage);
     } else if (
       lowerInput.includes("price") ||
@@ -91,14 +98,22 @@ export class CLIInterface {
       lowerInput.includes("token") ||
       lowerInput.includes("coin")
     ) {
+      console.log("💰 Routing to GET_TOKEN_PRICE action");
       // Use the intelligent token price action that can handle any token
       await this.callAction("GET_TOKEN_PRICE", mockMessage);
-    } else if (lowerInput.includes("risk") || lowerInput.includes("analyze")) {
+    } else if (
+      lowerInput.includes("risk") ||
+      lowerInput.includes("analyze") ||
+      lowerInput.includes("worried")
+    ) {
+      console.log("⚠️ Routing to ANALYZE_RISK action");
       await this.callAction("ANALYZE_RISK", mockMessage);
     } else if (
       lowerInput.includes("optimize") ||
-      lowerInput.includes("rebalance")
+      lowerInput.includes("rebalance") ||
+      lowerInput.includes("improve")
     ) {
+      console.log("🎯 Routing to OPTIMIZE_PORTFOLIO action");
       await this.callAction("OPTIMIZE_PORTFOLIO", mockMessage);
     } else if (lowerInput.includes("position")) {
       console.log("Displaying DeFi positions...");

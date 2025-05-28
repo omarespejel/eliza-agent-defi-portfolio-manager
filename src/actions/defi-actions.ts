@@ -42,7 +42,18 @@ export const checkPortfolioAction: Action = {
 
       // Get real portfolio data
       const walletAddress = runtime.getSetting("WALLET_ADDRESS") || undefined;
+      console.log(
+        `🔍 Debug - Wallet address from settings: ${walletAddress ? `${walletAddress.substring(0, 6)}...${walletAddress.substring(walletAddress.length - 4)}` : "undefined"}`,
+      );
+
       const portfolioData = await dataService.getPortfolioData(walletAddress);
+      console.log(
+        `📊 Debug - Portfolio data source: ${walletAddress ? "Real wallet data" : "Demo data"}`,
+      );
+      console.log(
+        `💰 Debug - Total portfolio value: $${portfolioData.totalValue.toLocaleString()}`,
+      );
+
       const marketData = await dataService.getMarketData();
 
       // Create intelligent response with real data
@@ -234,7 +245,18 @@ export const analyzeRiskAction: Action = {
       // Get real portfolio and market data
       const dataService = new DataService(runtime);
       const walletAddress = runtime.getSetting("WALLET_ADDRESS") || undefined;
+      console.log(
+        `🔍 Debug - Wallet address from settings: ${walletAddress ? `${walletAddress.substring(0, 6)}...${walletAddress.substring(walletAddress.length - 4)}` : "undefined"}`,
+      );
+
       const portfolioData = await dataService.getPortfolioData(walletAddress);
+      console.log(
+        `📊 Debug - Portfolio data source: ${walletAddress ? "Real wallet data" : "Demo data"}`,
+      );
+      console.log(
+        `💰 Debug - Total portfolio value: $${portfolioData.totalValue.toLocaleString()}`,
+      );
+
       const marketData = await dataService.getMarketData();
       const ethPrice = await dataService.getEthPrice();
 

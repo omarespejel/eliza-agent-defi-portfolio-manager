@@ -202,11 +202,19 @@ export class DataService {
 
   async getPortfolioData(walletAddress?: string): Promise<PortfolioData> {
     try {
+      console.log(
+        `🔍 DataService - getPortfolioData called with address: ${walletAddress ? `${walletAddress.substring(0, 6)}...${walletAddress.substring(walletAddress.length - 4)}` : "undefined"}`,
+      );
+
       if (!walletAddress) {
+        console.log(
+          "📊 DataService - No wallet address provided, returning demo portfolio",
+        );
         // Return demo portfolio if no wallet address provided
         return this.getDemoPortfolio();
       }
 
+      console.log("🔗 DataService - Attempting to fetch real wallet data...");
       // Get token balances using Alchemy API
       const balances = await this.getTokenBalances(walletAddress);
       const defiPositions = await this.getDefiPositions(walletAddress);
@@ -214,6 +222,9 @@ export class DataService {
       const totalValue = this.calculateTotalValue(balances, defiPositions);
       const riskScore = this.calculateRiskScore(balances, defiPositions);
 
+      console.log(
+        `✅ DataService - Successfully fetched real data. Total value: $${totalValue.toLocaleString()}`,
+      );
       return {
         totalValue,
         balances,
@@ -221,7 +232,8 @@ export class DataService {
         riskScore,
       };
     } catch (error) {
-      console.error("Error fetching portfolio data:", error);
+      console.error("❌ DataService - Error fetching portfolio data:", error);
+      console.log("🔄 DataService - Falling back to demo portfolio");
       return this.getDemoPortfolio();
     }
   }
@@ -230,11 +242,20 @@ export class DataService {
     walletAddress: string,
   ): Promise<TokenBalance[]> {
     try {
+      console.log(
+        `🔍 DataService - getTokenBalances called for ${walletAddress.substring(0, 6)}...${walletAddress.substring(walletAddress.length - 4)}`,
+      );
+
       const alchemyApiKey = this.runtime.getSetting("ALCHEMY_API_KEY");
+      console.log(
+        `🔑 DataService - Alchemy API key: ${alchemyApiKey ? "Present" : "Missing"}`,
+      );
+
       if (!alchemyApiKey) {
         throw new Error("Alchemy API key not configured");
       }
 
+      console.log("🌐 DataService - Making Alchemy API calls...");
       const response = await axios.post(
         `${this.alchemyBaseUrl}/${alchemyApiKey}`,
         {
@@ -259,6 +280,10 @@ export class DataService {
       const ethBalance = parseInt(ethResponse.data.result, 16) / 1e18;
       const ethPrice = (await this.getEthPrice()).price;
 
+      console.log(
+        `💰 DataService - ETH balance: ${ethBalance.toFixed(4)} ETH (~$${(ethBalance * ethPrice).toLocaleString()})`,
+      );
+
       const balances: TokenBalance[] = [
         {
           symbol: "ETH",
@@ -270,6 +295,10 @@ export class DataService {
 
       // Process token balances (simplified for demo)
       const tokenBalances = response.data.result.tokenBalances || [];
+      console.log(
+        `🪙 DataService - Found ${tokenBalances.length} token balances`,
+      );
+
       for (const token of tokenBalances.slice(0, 5)) {
         // Limit to top 5 tokens
         if (token.tokenBalance && token.tokenBalance !== "0x0") {
@@ -283,9 +312,13 @@ export class DataService {
         }
       }
 
+      console.log(
+        `✅ DataService - Processed ${balances.length} token balances`,
+      );
       return balances;
     } catch (error) {
-      console.error("Error fetching token balances:", error);
+      console.error("❌ DataService - Error fetching token balances:", error);
+      console.log("🔄 DataService - Falling back to demo balances");
       return this.getDemoBalances();
     }
   }
