@@ -126,9 +126,20 @@ export class DataService {
 
   async getTokenPrice(tokenSymbolOrId: string): Promise<TokenPriceData> {
     try {
-      const binanceSymbol = this.resolveBinanceSymbol(
-        tokenSymbolOrId.toLowerCase(),
-      );
+      const binanceSymbol = this.resolveBinanceSymbol(tokenSymbolOrId.toLowerCase());
+
+      // Special handling for stablecoins
+      if (tokenSymbolOrId.toLowerCase() === 'usdt' || tokenSymbolOrId.toLowerCase() === 'usdc' || tokenSymbolOrId.toLowerCase() === 'dai') {
+        return {
+          symbol: tokenSymbolOrId.toUpperCase(),
+          name: tokenSymbolOrId.toUpperCase(),
+          price: 1.0, // Stablecoins are ~$1
+          change24h: 0.01, // Minimal change
+          volume24h: 1000000000, // High volume
+          marketCap: 0,
+          lastUpdated: new Date().toISOString(),
+        };
+      }
 
       // Get 24hr ticker data from Binance
       const response = await axios.get(
@@ -141,10 +152,7 @@ export class DataService {
       }
 
       // Extract base symbol from trading pair (e.g., ETHUSDT -> ETH)
-      const baseSymbol = data.symbol
-        .replace("USDT", "")
-        .replace("USDC", "")
-        .replace("BUSD", "");
+      const baseSymbol = data.symbol.replace('USDT', '').replace('USDC', '').replace('BUSD', '');
 
       return {
         symbol: baseSymbol.toUpperCase(),
@@ -178,11 +186,20 @@ export class DataService {
 
     // If not in mapping, try to construct USDT pair
     const upperInput = input.toUpperCase();
-    if (
-      !upperInput.includes("USDT") &&
-      !upperInput.includes("USDC") &&
-      !upperInput.includes("BUSD")
-    ) {
+    
+    // Special handling for stablecoins
+    if (upperInput === 'USDC') {
+      return 'USDCUSDT';
+    }
+    if (upperInput === 'USDT') {
+      return 'USDTUSDT'; // This won't work, but we'll handle it in getTokenPrice
+    }
+    if (upperInput === 'DAI') {
+      return 'DAIUSDT';
+    }
+    
+    // For other tokens, try to construct USDT pair
+    if (!upperInput.includes('USDT') && !upperInput.includes('USDC') && !upperInput.includes('BUSD')) {
       return `${upperInput}USDT`;
     }
 
@@ -368,23 +385,19 @@ export class DataService {
               const rawBalance = parseInt(token.tokenBalance, 16);
               const balance = rawBalance / Math.pow(10, decimals);
 
-              // Only include tokens with meaningful balance
-              if (balance > 0.001) {
+              // Only include tokens with meaningful balance and valid symbols
+              if (balance > 0.001 && this.isValidTokenSymbol(metadata.symbol)) {
                 let tokenPrice = 0;
                 let tokenValue = 0;
 
                 // Try to get price from Binance if we have a symbol
                 if (metadata.symbol) {
                   try {
-                    const priceData = await this.getTokenPrice(
-                      metadata.symbol.toLowerCase(),
-                    );
+                    const priceData = await this.getTokenPrice(metadata.symbol.toLowerCase());
                     tokenPrice = priceData.price;
                     tokenValue = balance * tokenPrice;
                   } catch (error) {
-                    console.log(
-                      `⚠️ Could not fetch price for ${metadata.symbol}, using balance only`,
-                    );
+                    console.log(`⚠️ Could not fetch price for ${metadata.symbol}, using balance only`);
                     tokenValue = 0; // Set to 0 if we can't get price
                   }
                 }
@@ -397,7 +410,7 @@ export class DataService {
                 });
 
                 console.log(
-                  `🪙 Added token: ${metadata.symbol || "UNKNOWN"} - ${balance.toFixed(4)} tokens (~$${tokenValue.toFixed(2)})`,
+                  `🪙 Added token: ${metadata.symbol || "UNKNOWN"} - ${balance.toFixed(4)} tokens (~$${tokenValue.toFixed(2)})`
                 );
               }
             }
@@ -547,5 +560,57 @@ export class DataService {
         ethDominance: 9.0,
       };
     }
+  }
+
+  private isValidTokenSymbol(symbol: string): boolean {
+    if (!symbol) return false;
+    
+    // Check if symbol matches Binance requirements: ^[A-Z0-9-_.]{1,20}$
+    const binanceSymbolRegex = /^[A-Z0-9\-_.]{1,20}$/;
+    
+    // Convert to uppercase for validation
+    const upperSymbol = symbol.toUpperCase();
+    
+    // Basic validation
+    if (!binanceSymbolRegex.test(upperSymbol)) {
+      return false;
+    }
+    
+    // Filter out obvious spam/scam patterns
+    const spamPatterns = [
+      /VISIT/i,
+      /WEBSITE/i,
+      /CLAIM/i,
+      /REWARD/i,
+      /AIRDROP/i,
+      /HTTP/i,
+      /WWW\./i,
+      /\.COM/i,
+      /\.IO/i,
+      /\.ORG/i,
+      /EARN/i,
+      /FREE/i,
+      /BONUS/i,
+      /GIFT/i,
+      /\$/,
+      /ADDITIONAL/i,
+      /GET/i,
+    ];
+    
+    // Check if symbol contains spam patterns
+    for (const pattern of spamPatterns) {
+      if (pattern.test(symbol)) {
+        console.log(`🚫 Filtering out spam token: ${symbol}`);
+        return false;
+      }
+    }
+    
+    // Check if symbol is too long (likely spam)
+    if (symbol.length > 10) {
+      console.log(`🚫 Filtering out long symbol (likely spam): ${symbol}`);
+      return false;
+    }
+    
+    return true;
   }
 }
